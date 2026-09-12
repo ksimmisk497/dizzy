@@ -121,22 +121,6 @@
       background: #252535;
     }
 
-    /* Load button */
-    #lolbutton {
-      display: block;
-      margin: 30px auto 0;
-      padding: 10px 24px;
-      background: #14141c;
-      color: #888;
-      border: 1px solid #2a2a35;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: color .15s, border-color .15s;
-    }
-    #lolbutton:hover { color: #fff; border-color: #6c7cff; }
-
     /* ── Footer ── */
     #footer {
       position: fixed;
@@ -170,18 +154,9 @@
 
   <div id="footer"><p>© 2026 Crown Games. All rights reserved.</p></div>
 
-  <!-- Load the UGS game library — same source as the original site -->
+  <!-- Load the UGS game library — both scripts load automatically -->
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
-
-  <button id="lolbutton" onclick="
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js';
-    document.body.appendChild(s);
-    this.textContent = 'Loading…';
-    this.disabled = true;
-  ">
-    Click here if games aren't loading
-  </button>
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js"></script>
 
   <script>
     // ── Live search filter ──────────────────────────────────────────────────────
@@ -209,12 +184,6 @@
     // Re-run filter after UGS finishes injecting buttons
     const obs = new MutationObserver(() => {
       if (searchInput.value) filterGames();
-      // Hide load button once games appear
-      const count = document.querySelectorAll('#sections-container input[type="button"]').length;
-      if (count > 5) {
-        const btn = document.getElementById('lolbutton');
-        if (btn) btn.style.display = 'none';
-      }
     });
     obs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
   </script>
