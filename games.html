@@ -7,7 +7,6 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -17,7 +16,7 @@
       min-height: 100%;
     }
 
-    /* ── Nav tabs ── */
+    /* ── Nav ── */
     .nav {
       display: flex;
       justify-content: center;
@@ -51,10 +50,10 @@
       margin-bottom: -1px;
     }
 
-    /* ── Search bar ── */
+    /* ── Search ── */
     #search-wrap {
       text-align: center;
-      padding: 22px 20px 10px;
+      padding: 22px 20px 0;
     }
     #searchInput {
       padding: 12px 20px;
@@ -74,17 +73,53 @@
       box-shadow: 0 0 0 3px rgba(108,124,255,0.18);
     }
 
+    /* ── Quick links circles ── */
+    #quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      padding: 20px 20px 18px;
+    }
+    .quick-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      color: #888;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color .15s;
+    }
+    .quick-link:hover { color: #fff; }
+    .quick-link:hover .quick-circle { border-color: #6c7cff; background: #1a1a2e; }
+    .quick-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #14141c;
+      border: 1px solid #2a2a35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .15s, background .15s;
+      overflow: hidden;
+    }
+    .quick-circle img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
     /* ── Letter sections ── */
     #sections-container {
-      padding: 12px 20px 100px;
+      padding: 8px 20px 80px;
       max-width: 1400px;
       margin: 0 auto;
     }
-
-    /* UGS injects .letter-section and input[type=button] — style them to match dizzy */
-    .letter-section {
-      margin-bottom: 32px;
-    }
+    .letter-section { margin-bottom: 32px; }
     .letter-header {
       font-size: 11px;
       font-weight: 600;
@@ -95,11 +130,8 @@
       border-bottom: 1px solid #1c1c28;
       margin-bottom: 12px;
     }
-    .buttons-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    .buttons-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
     input[type="button"] {
       padding: 9px 16px;
       background: #14141c;
@@ -117,25 +149,20 @@
       border-color: #6c7cff;
       color: #fff;
     }
-    input[type="button"]:active {
-      background: #252535;
-    }
+    input[type="button"]:active { background: #252535; }
 
-    /* ── Footer ── */
+    /* ── Footer — stays at very bottom of page content, not fixed ── */
     #footer {
-      position: fixed;
-      left: 0; bottom: 0;
       width: 100%;
       background: #0a0a0f;
       border-top: 1px solid #1c1c28;
-      padding: 10px 0;
+      padding: 14px 0;
       text-align: center;
       font-size: 12px;
       color: #555;
     }
     #footer p { margin: 0; }
 
-    /* hide sections with no visible buttons during search */
     .letter-section.hidden { display: none; }
   </style>
 </head>
@@ -150,30 +177,48 @@
     <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
   </div>
 
+
   <div id="sections-container"></div>
 
   <div id="footer"><p>© 2026 Crown Games. All rights reserved.</p></div>
 
-  <!-- Load the UGS game library — both scripts load automatically -->
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js"></script>
 
   <script>
-    // ── Live search filter ──────────────────────────────────────────────────────
-    // Works on top of whatever UGS injects into #sections-container
+    // ── Strip "cl" prefix UGS puts on game names ─────────────────────────────
+    function fixLabel(el) {
+      if (el.tagName === 'INPUT' && el.type === 'button') {
+        let v = el.value || '';
+        if (v.startsWith('cl')) el.value = v.slice(2);
+      }
+    }
+
+    // Run on any already-present buttons
+    document.querySelectorAll('input[type="button"]').forEach(fixLabel);
+
+    // Watch for UGS injecting buttons dynamically
+    const fixObs = new MutationObserver(muts => {
+      for (const m of muts) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          if (node.tagName === 'INPUT' && node.type === 'button') fixLabel(node);
+          node.querySelectorAll && node.querySelectorAll('input[type="button"]').forEach(fixLabel);
+        }
+      }
+    });
+    fixObs.observe(document.body, { childList: true, subtree: true });
+
+    // ── Live search filter ────────────────────────────────────────────────────
     const searchInput = document.getElementById('searchInput');
 
     function filterGames() {
       const q = searchInput.value.trim().toLowerCase();
-      const buttons = document.querySelectorAll('#sections-container input[type="button"]');
-      const sections = document.querySelectorAll('.letter-section');
-
-      buttons.forEach(btn => {
+      document.querySelectorAll('#sections-container input[type="button"]').forEach(btn => {
         const match = !q || (btn.value || '').toLowerCase().includes(q);
         btn.style.display = match ? '' : 'none';
       });
-
-      sections.forEach(sec => {
+      document.querySelectorAll('.letter-section').forEach(sec => {
         const visible = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
         sec.classList.toggle('hidden', visible === 0);
       });
@@ -181,11 +226,10 @@
 
     searchInput.addEventListener('input', filterGames);
 
-    // Re-run filter after UGS finishes injecting buttons
-    const obs = new MutationObserver(() => {
+    const searchObs = new MutationObserver(() => {
       if (searchInput.value) filterGames();
     });
-    obs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
+    searchObs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
   </script>
 
 </body>
