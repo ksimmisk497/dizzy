@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dizzy | Games</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #0a0a0f;
+      color: #f2f2f7;
+      font-family: 'Open Sans', system-ui, sans-serif;
+      min-height: 100%;
+    }
+
+    /* ── Nav tabs ── */
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 20px 0;
+      border-bottom: 1px solid #1c1c28;
+      background: #0a0a0f;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav a {
+      text-decoration: none;
+      color: #888;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid transparent;
+      border-bottom: none;
+      transition: color .15s, background .15s;
+    }
+    .nav a:hover { color: #fff; background: #14141c; }
+    .nav a.active {
+      color: #fff;
+      background: #14141c;
+      border-color: #2a2a35;
+      border-bottom: 1px solid #0a0a0f;
+      margin-bottom: -1px;
+    }
+
+    /* ── Search bar ── */
+    #search-wrap {
+      text-align: center;
+      padding: 22px 20px 10px;
+    }
+    #searchInput {
+      padding: 12px 20px;
+      border: 1px solid #2a2a35;
+      border-radius: 10px;
+      font-size: 14px;
+      width: min(420px, 92vw);
+      background: #14141c;
+      color: #fff;
+      outline: none;
+      font-family: inherit;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #searchInput::placeholder { color: #4a4a58; }
+    #searchInput:focus {
+      border-color: #6c7cff;
+      box-shadow: 0 0 0 3px rgba(108,124,255,0.18);
+    }
+
+    /* ── Letter sections ── */
+    #sections-container {
+      padding: 12px 20px 100px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* UGS injects .letter-section and input[type=button] — style them to match dizzy */
+    .letter-section {
+      margin-bottom: 32px;
+    }
+    .letter-header {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #444;
+      padding: 6px 0 10px;
+      border-bottom: 1px solid #1c1c28;
+      margin-bottom: 12px;
+    }
+    .buttons-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    input[type="button"] {
+      padding: 9px 16px;
+      background: #14141c;
+      color: #d0d0e0;
+      border: 1px solid #2a2a35;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+      white-space: nowrap;
+    }
+    input[type="button"]:hover {
+      background: #1e1e2e;
+      border-color: #6c7cff;
+      color: #fff;
+    }
+    input[type="button"]:active {
+      background: #252535;
+    }
+
+    /* Load button */
+    #lolbutton {
+      display: block;
+      margin: 30px auto 0;
+      padding: 10px 24px;
+      background: #14141c;
+      color: #888;
+      border: 1px solid #2a2a35;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    #lolbutton:hover { color: #fff; border-color: #6c7cff; }
+
+    /* ── Footer ── */
+    #footer {
+      position: fixed;
+      left: 0; bottom: 0;
+      width: 100%;
+      background: #0a0a0f;
+      border-top: 1px solid #1c1c28;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+    }
+    #footer p { margin: 0; }
+
+    /* hide sections with no visible buttons during search */
+    .letter-section.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="games.html" class="active">Games</a>
+  </nav>
+
+  <div id="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
+  </div>
+
+  <div id="sections-container"></div>
+
+  <div id="footer"><p>© 2026 Crown Games. All rights reserved.</p></div>
+
+  <!-- Load the UGS game library — same source as the original site -->
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
+
+  <button id="lolbutton" onclick="
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js';
+    document.body.appendChild(s);
+    this.textContent = 'Loading…';
+    this.disabled = true;
+  ">
+    Click here if games aren't loading
+  </button>
+
+  <script>
+    // ── Live search filter ──────────────────────────────────────────────────────
+    // Works on top of whatever UGS injects into #sections-container
+    const searchInput = document.getElementById('searchInput');
+
+    function filterGames() {
+      const q = searchInput.value.trim().toLowerCase();
+      const buttons = document.querySelectorAll('#sections-container input[type="button"]');
+      const sections = document.querySelectorAll('.letter-section');
+
+      buttons.forEach(btn => {
+        const match = !q || (btn.value || '').toLowerCase().includes(q);
+        btn.style.display = match ? '' : 'none';
+      });
+
+      sections.forEach(sec => {
+        const visible = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
+        sec.classList.toggle('hidden', visible === 0);
+      });
+    }
+
+    searchInput.addEventListener('input', filterGames);
+
+    // Re-run filter after UGS finishes injecting buttons
+    const obs = new MutationObserver(() => {
+      if (searchInput.value) filterGames();
+      // Hide load button once games appear
+      const count = document.querySelectorAll('#sections-container input[type="button"]').length;
+      if (count > 5) {
+        const btn = document.getElementById('lolbutton');
+        if (btn) btn.style.display = 'none';
+      }
+    });
+    obs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
+  </script>
+
+</body>
+</html>
