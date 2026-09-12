@@ -1,13 +1,12 @@
 (function () {
   if (typeof Ultraviolet === "undefined") return;
 
-  // Works in both page context and SW context
-  const _loc = typeof location !== "undefined" ? location : self.location;
-  const _base = _loc.pathname.replace(/\/(uv\/uv\.config\.js|uv\.js)$/, "");
+  const _loc  = typeof location !== "undefined" ? location : self.location;
+  const _base = _loc.pathname.replace(/\/(uv\/uv\.config\.js|uv\.js)$/, "").replace(/\/$/, "");
 
   self.__uv$config = {
     prefix:    _base + "/service/",
-    bare:      "https://wes-prox.ksimmisk497.workers.dev/",
+    bare:      "https://dizzy.workers.dev/",
     encodeUrl: Ultraviolet.codec.xor.encode,
     decodeUrl: Ultraviolet.codec.xor.decode,
     handler:   _base + "/uv/uv.handler.js",
