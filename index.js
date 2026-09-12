@@ -14,32 +14,20 @@ async function initUV() {
 
   if (!form || !address) return;
 
+  // Register SW on load
   if (typeof registerSW === "function") {
     try { await registerSW(); } catch (_) {}
-  }
-
-  // Probe bare servers and return the first live one
-  async function findLiveBare(servers) {
-    if (!Array.isArray(servers)) return null;
-    for (const s of servers) {
-      try {
-        const url = typeof s === "string" ? s : s.href;
-        const res = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(4000) });
-        // Bare servers return 400/405 on HEAD to root — anything that isn't a network error is live
-        if (res.status < 500) return url;
-      } catch (_) { /* dead, try next */ }
-    }
-    return null;
   }
 
   async function navigate(raw) {
     clear();
 
     if (typeof __uv$config === "undefined") {
-      show("Proxy config failed to load. Check the Network tab for 404s.");
+      show("Proxy config failed to load.");
       return;
     }
 
+    // Ensure SW is active
     if (typeof registerSW === "function") {
       try { await registerSW(); } catch (err) {
         show("Service worker failed: " + err.message);
@@ -49,26 +37,14 @@ async function initUV() {
 
     const reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
     if (!reg || !reg.active) {
-      show("Service worker not active yet — reload the page and try again.");
-      return;
-    }
-
-    // Verify at least one bare server is reachable before navigating
-    const servers = Array.isArray(__uv$config.bare)
-      ? __uv$config.bare
-      : [__uv$config.bare];
-    const live = await findLiveBare(servers);
-    if (!live) {
-      show(
-        "All bare servers are unreachable.",
-        "The proxy backend is down. Try again later or self-host a bare server.\n" +
-        "Tried: " + servers.join(", ")
-      );
+      show("Service worker not active — reload the page once and try again.");
       return;
     }
 
     const template = (engine && engine.value) || "https://www.google.com/search?q=%s";
     const url = typeof search === "function" ? search(raw, template) : raw;
+
+    // Navigate directly — no bare server probe that can block/fail
     location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
   }
 
