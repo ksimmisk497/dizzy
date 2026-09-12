@@ -1,0 +1,6 @@
+CHANGELOG
+
+=== Added ===
+- ultraviolet proxy
+- made the browser to duck duck go
+- made loading faster
