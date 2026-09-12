@@ -2,25 +2,21 @@
 async function registerSW() {
   if (!navigator.serviceWorker) return;
 
-  // Figure out the base path dynamically so this works on any deploy
-  // e.g. ksimmisk497.github.io/ultra-prox/ or a custom domain
-  const base = new URL(".", location.href).pathname.replace(/\/$/, "");
-  const scope = base + "/service/";
-  const swUrl = base + "/uv.js";
-
-  // Kill any SW not on our scope
+  // Kill any stale SWs not on the correct scope
   const regs = await navigator.serviceWorker.getRegistrations();
   await Promise.all(
     regs
-      .filter(r => !r.scope.endsWith("/service/"))
+      .filter(r => !r.scope.includes("/ultra-prox/service/"))
       .map(r => { console.log("[WP] removing stale SW:", r.scope); return r.unregister(); })
   );
 
   if (typeof __uv$config === "undefined") return;
 
-  let reg = await navigator.serviceWorker.getRegistration(scope);
+  let reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
   if (!reg) {
-    reg = await navigator.serviceWorker.register(swUrl, { scope });
+    reg = await navigator.serviceWorker.register("/ultra-prox/uv.js", {
+      scope: "/ultra-prox/service/"
+    });
     console.log("[WP] SW registered, scope:", reg.scope);
   }
 

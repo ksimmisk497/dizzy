@@ -10,7 +10,6 @@ async function initUV() {
     if (errEl)  errEl.textContent  = msg;
     if (codeEl) codeEl.textContent = detail || "";
   }
-  function clear() { show("", ""); }
 
   if (!form || !address) return;
 
@@ -19,27 +18,15 @@ async function initUV() {
   }
 
   async function navigate(raw) {
-    clear();
-
-    if (typeof __uv$config === "undefined") {
-      show("Proxy config failed to load.");
-      return;
-    }
+    show("", "");
+    if (typeof __uv$config === "undefined") { show("Config failed to load."); return; }
 
     if (typeof registerSW === "function") {
-      try { await registerSW(); } catch (err) {
-        show("Service worker failed: " + err.message);
-        return;
-      }
+      try { await registerSW(); } catch (err) { show("SW failed: " + err.message); return; }
     }
 
-    const base  = new URL(".", location.href).pathname.replace(/\/$/, "");
-    const scope = base + "/service/";
-    const reg   = await navigator.serviceWorker.getRegistration(scope);
-    if (!reg || !reg.active) {
-      show("Service worker not active — reload and try again.");
-      return;
-    }
+    const reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
+    if (!reg || !reg.active) { show("Service worker not active — reload and try again."); return; }
 
     const template = (engine && engine.value) || "https://www.google.com/search?q=%s";
     const url = typeof search === "function" ? search(raw, template) : raw;
@@ -49,8 +36,7 @@ async function initUV() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const raw = address.value.trim();
-    if (!raw) return;
-    await navigate(raw);
+    if (raw) await navigate(raw);
   });
 
   address.addEventListener("keydown", e => {
