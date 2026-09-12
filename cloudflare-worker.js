@@ -52,7 +52,28 @@ async function proxyFetch(req, targetUrl, host) {
   }
 
   stripForbidden(bareHeaders);
+  
   bareHeaders["host"] = host;
+
+  // Helpful defaults for media sites (TikTok, etc.)
+  const hostLower = String(host || "").toLowerCase();
+  const isMediaHost = /tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ytimg|googlevideo|vimeo|twimg/.test(hostLower);
+  if (isMediaHost) {
+    if (!bareHeaders["referer"]) {
+      if (hostLower.includes("tiktok") || hostLower.includes("byte")) {
+        bareHeaders["referer"] = "https://www.tiktok.com/";
+        bareHeaders["origin"] = "https://www.tiktok.com";
+      }
+    }
+    if (!bareHeaders["user-agent"]) {
+      bareHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+    }
+    // Prefer identity so media bytes are not mangled unless range needs otherwise
+    if (!bareHeaders["range"]) {
+      bareHeaders["accept-encoding"] = "identity";
+    }
+  }
+
 
   // ── Range request passthrough for video seeking ──────────────────────────
   // UV puts the Range header inside x-bare-headers. If it's there, keep it.

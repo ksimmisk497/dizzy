@@ -1,24 +1,15 @@
-Wes's Proxy
+# Dizzy
 
-- the ultimate proxy for schools to unblock sites that might be blocked by your school instantly with our super fast servers
+Ultraviolet frontend for GitHub Pages.
 
+Bare server is built in (Cloudflare Worker).
 
+## Deploy to GitHub Pages
 
-Popular sites this unblocks
+1. Create a new GitHub repository
+2. Upload all files from this folder to the repo root
+3. Settings → Pages → Source: Deploy from a branch
+4. Branch: main, folder: / (root)
+5. Open https://YOUR_USERNAME.github.io/REPO_NAME/
 
-
-
-* Instagram
-* TikTok
-* Discord
-* Youtube
-* ANY Unblocked Games website
-* and literally every website every made
-
-
-Making a Proxy
-- if you are to take our files and remake this proxy you will need to use a different server than my current one 
-- you must give credit to me (Wes) for making this proxy
-
-
-
+Do not open index.html as a local file. Use the github.io URL.

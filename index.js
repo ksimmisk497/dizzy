@@ -1,46 +1,61 @@
 "use strict";
 async function initUV() {
-  const form    = document.getElementById("uv-form");
-  const address = document.getElementById("uv-address");
-  const engine  = document.getElementById("uv-search-engine");
-  const errEl   = document.getElementById("uv-error");
-  const codeEl  = document.getElementById("uv-error-code");
+  var form = document.getElementById("uv-form");
+  var address = document.getElementById("uv-address");
+  var engine = document.getElementById("uv-search-engine");
+  var errEl = document.getElementById("uv-error");
+  var codeEl = document.getElementById("uv-error-code");
 
   function show(msg, detail) {
-    if (errEl)  errEl.textContent  = msg;
+    if (errEl) errEl.textContent = msg || "";
     if (codeEl) codeEl.textContent = detail || "";
+  }
+
+  if (location.protocol === "file:" || location.origin === "null") {
+    show(
+      "Do not open index.html from your computer.",
+      "Upload to GitHub Pages and use https://YOURUSER.github.io/REPO/"
+    );
+    return;
   }
 
   if (!form || !address) return;
 
   if (typeof registerSW === "function") {
-    try { await registerSW(); } catch (_) {}
+    try {
+      await registerSW();
+    } catch (e) {
+      show("SW failed: " + (e && e.message ? e.message : e));
+    }
   }
 
   async function navigate(raw) {
     show("", "");
-    if (typeof __uv$config === "undefined") { show("Config failed to load."); return; }
-
-    if (typeof registerSW === "function") {
-      try { await registerSW(); } catch (err) { show("SW failed: " + err.message); return; }
+    if (location.protocol === "file:" || location.origin === "null") {
+      show("Use your GitHub Pages HTTPS link, not a local file.");
+      return;
     }
-
-    const reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
-    if (!reg || !reg.active) { show("Service worker not active — reload and try again."); return; }
-
-    const template = (engine && engine.value) || "https://www.google.com/search?q=%s";
-    const url = typeof search === "function" ? search(raw, template) : raw;
+    if (typeof __uv$config === "undefined") {
+      show("Config failed to load.");
+      return;
+    }
+    if (typeof registerSW === "function") {
+      try {
+        await registerSW();
+      } catch (err) {
+        show("SW failed: " + (err && err.message ? err.message : err));
+        return;
+      }
+    }
+    var template = (engine && engine.value) || "https://duckduckgo.com/?q=%s";
+    var url = typeof search === "function" ? search(raw, template) : raw;
     location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
   }
 
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    const raw = address.value.trim();
+    var raw = address.value.trim();
     if (raw) await navigate(raw);
-  });
-
-  address.addEventListener("keydown", e => {
-    if (e.key === "Enter") form.dispatchEvent(new Event("submit"));
   });
 }
 

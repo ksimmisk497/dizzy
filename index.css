@@ -1,40 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
 
 * { box-sizing: border-box; }
 
-body {
-  background: #000;
-  color: #fff;
+html, body {
+  background: #0a0a0f !important;
+  color: #f2f2f7 !important;
   margin: 0;
   padding: 0;
-  font-family: 'Open Sans', sans-serif;
+  min-height: 100%;
+  font-family: 'Open Sans', system-ui, sans-serif;
 }
 
 #header {
-  background: #000;
-  padding: 24px;
+  background: transparent;
+  padding: 36px 24px 8px;
   text-align: center;
 }
 
 #header img {
-  width: 18%;
+  width: 120px;
   height: auto;
-  max-width: 180px;
+  max-width: 40vw;
+  border-radius: 12px;
 }
 
 #content {
   text-align: center;
-  padding: 20px;
-  margin-top: -2%;
+  padding: 12px 20px 80px;
 }
 
 #site-title {
-  font-size: 22px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  letter-spacing: 3px;
   color: #fff;
-  margin-bottom: 24px;
-  cursor: default;
+  margin: 8px 0 28px;
 }
 
 #uv-form {
@@ -43,27 +44,22 @@ body {
 }
 
 .form__input {
-  padding: 12px 20px;
-  border: 1px solid #333;
-  border-radius: 6px;
+  padding: 14px 20px;
+  border: 1px solid #2a2a35;
+  border-radius: 10px;
   font-size: 15px;
-  width: 340px;
-  background: #111;
+  width: min(380px, 92vw);
+  background: #14141c;
   color: #fff;
   text-align: center;
   outline: none;
   transition: border-color .2s, box-shadow .2s;
 }
 
-.form__input::placeholder { color: #666; }
+.form__input::placeholder { color: #6a6a78; }
 .form__input:focus {
-  border-color: #555;
-  box-shadow: 0 0 8px rgba(255,255,255,0.08);
-}
-
-a {
-  text-decoration: none;
-  color: #fff;
+  border-color: #6c7cff;
+  box-shadow: 0 0 0 3px rgba(108,124,255,0.2);
 }
 
 #footer {
@@ -71,11 +67,11 @@ a {
   left: 0;
   bottom: 0;
   width: 100%;
-  background: #000;
-  border-top: 1px solid #1a1a2e;
-  padding: 8px 0;
+  background: #0a0a0f;
+  border-top: 1px solid #1c1c28;
+  padding: 10px 0;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #555;
 }
 
