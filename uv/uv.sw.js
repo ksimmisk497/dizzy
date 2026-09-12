@@ -203,7 +203,7 @@ class UVServiceWorker extends EventEmitter {
 
         return {
             headers,
-            status: +response.headers.get('x-bare-status'),
+            status: (function(){ const s = +response.headers.get('x-bare-status'); return (s >= 200 && s <= 599) ? s : 200; })(),
             statusText: response.headers.get('x-bare-status-text'),
             body: !this.statusCode.empty.includes(+response.headers.get('x-bare-status')) ? response.body : null,
         };
