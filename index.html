@@ -6,6 +6,11 @@
   <title>Dizzy</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="index.css">
+  <!-- preconnect so DNS+TLS is done before scripts request these origins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
+  <link rel="preload" href="uv/uv.bundle.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -60,11 +65,11 @@
       }
     </script>
   </div>
-  <script src="uv/uv.bundle.js"></script>
-  <script src="uv/uv.config.js"></script>
-  <script src="register-sw.js"></script>
-  <script src="search.js"></script>
-  <script src="index.js"></script>
+  <script src="uv/uv.bundle.js" defer></script>
+  <script src="uv/uv.config.js" defer></script>
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="index.js" defer></script>
   <div id="footer"><p>© 2026 Crown Games. All rights reserved.</p></div>
 </body>
 </html>
