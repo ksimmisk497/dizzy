@@ -2,32 +2,30 @@
 async function registerSW() {
   if (!navigator.serviceWorker) return;
 
-  // Unregister ALL stale SWs — including the old caching SW at /ultra-prox/sw.js
+  // Figure out the base path dynamically so this works on any deploy
+  // e.g. ksimmisk497.github.io/ultra-prox/ or a custom domain
+  const base = new URL(".", location.href).pathname.replace(/\/$/, "");
+  const scope = base + "/service/";
+  const swUrl = base + "/uv.js";
+
+  // Kill any SW not on our scope
   const regs = await navigator.serviceWorker.getRegistrations();
   await Promise.all(
     regs
-      .filter(r => !r.scope.endsWith("/ultra-prox/service/"))
-      .map(r => { console.log("[WP] killing stale SW:", r.scope); return r.unregister(); })
+      .filter(r => !r.scope.endsWith("/service/"))
+      .map(r => { console.log("[WP] removing stale SW:", r.scope); return r.unregister(); })
   );
 
   if (typeof __uv$config === "undefined") return;
 
-  let reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
-
+  let reg = await navigator.serviceWorker.getRegistration(scope);
   if (!reg) {
-    reg = await navigator.serviceWorker.register(
-      "/ultra-prox/uv.js",
-      { scope: "/ultra-prox/service/" }
-    );
+    reg = await navigator.serviceWorker.register(swUrl, { scope });
     console.log("[WP] SW registered, scope:", reg.scope);
   }
 
-  // Wait for the SW to be fully active before resolving
   await new Promise((resolve) => {
-    if (reg.active && !reg.installing && !reg.waiting) {
-      resolve();
-      return;
-    }
+    if (reg.active && !reg.installing && !reg.waiting) { resolve(); return; }
     const sw = reg.installing || reg.waiting;
     if (!sw) { resolve(); return; }
     sw.addEventListener("statechange", function h() {
@@ -36,7 +34,6 @@ async function registerSW() {
         resolve();
       }
     });
-    // Hard timeout — if it takes more than 4s, something is broken
     setTimeout(resolve, 4000);
   });
 }

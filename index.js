@@ -14,7 +14,6 @@ async function initUV() {
 
   if (!form || !address) return;
 
-  // Register SW on load
   if (typeof registerSW === "function") {
     try { await registerSW(); } catch (_) {}
   }
@@ -27,7 +26,6 @@ async function initUV() {
       return;
     }
 
-    // Ensure SW is active
     if (typeof registerSW === "function") {
       try { await registerSW(); } catch (err) {
         show("Service worker failed: " + err.message);
@@ -35,16 +33,16 @@ async function initUV() {
       }
     }
 
-    const reg = await navigator.serviceWorker.getRegistration("/ultra-prox/service/");
+    const base  = new URL(".", location.href).pathname.replace(/\/$/, "");
+    const scope = base + "/service/";
+    const reg   = await navigator.serviceWorker.getRegistration(scope);
     if (!reg || !reg.active) {
-      show("Service worker not active — reload the page once and try again.");
+      show("Service worker not active — reload and try again.");
       return;
     }
 
     const template = (engine && engine.value) || "https://www.google.com/search?q=%s";
     const url = typeof search === "function" ? search(raw, template) : raw;
-
-    // Navigate directly — no bare server probe that can block/fail
     location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
   }
 
