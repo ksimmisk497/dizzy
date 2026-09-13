@@ -11,86 +11,145 @@
   <link rel="preload" href="uv/uv.bundle.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="browser.css">
-  <style>
-    /* Home screen */
-    #home-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px 80px;
-    }
-    #home-logo {
-      width: 90px; height: auto;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-    #home-title {
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: #fff;
-      margin-bottom: 28px;
-    }
-    #home-form { display: flex; justify-content: center; width: 100%; margin-bottom: 6px; }
-    #home-search {
-      padding: 13px 20px;
-      border: 1px solid #2a2a35;
-      border-radius: 10px;
-      font-size: 15px;
-      width: min(380px, 92vw);
-      background: #14141c;
-      color: #fff;
-      text-align: center;
-      outline: none;
-      font-family: 'Open Sans', sans-serif;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    #home-search::placeholder { color: #6a6a78; }
-    #home-search:focus { border-color: #6c7cff; box-shadow: 0 0 0 3px rgba(108,124,255,0.2); }
-    #home-error { color: #f66; font-size: 13px; margin-top: 8px; min-height: 18px; }
+<style>
 
-    /* Quick circles */
-    #quick-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      padding: 22px 20px 8px;
-      flex-wrap: wrap;
-    }
-    .quick-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
-      color: #888;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-family: 'Open Sans', sans-serif;
-      background: none;
-      border: none;
-      cursor: pointer;
-      transition: color .15s;
-    }
-    .quick-btn:hover { color: #fff; }
-    .quick-btn:hover .quick-circle { border-color: #6c7cff; }
-    .quick-circle {
-      width: 54px; height: 54px;
-      border-radius: 50%;
-      background: #14141c;
-      border: 1px solid #2a2a35;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color .15s;
-    }
-    .quick-circle img { width: 100%; height: 100%; object-fit: cover; }
-  </style>
+  #home-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  #home-logo {
+    height: 110px;
+    width: auto;
+    border-radius: 0;
+    margin-bottom: 22px;
+    object-fit: contain;
+  }
+
+  #home-title {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 28px;
+  }
+
+  #home-form {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  #home-search {
+    padding: 13px 20px;
+    border: 1px solid #2a2a35;
+    border-radius: 10px;
+    font-size: 15px;
+    width: min(380px, 92vw);
+    background: #14141c;
+    color: #fff;
+    text-align: center;
+    outline: none;
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  #home-search::placeholder {
+    color: #6a6a78;
+  }
+
+  #home-search:focus {
+    border-color: #6c7cff;
+    box-shadow: 0 0 0 3px rgba(108,124,255,0.2);
+  }
+
+  #home-error {
+    color: #f66;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+
+  /* Quick circles */
+  #quick-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 22px 20px 8px;
+    flex-wrap: wrap;
+  }
+
+  .quick-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Open Sans', sans-serif;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color .15s;
+  }
+
+  .quick-btn:hover {
+    color: #fff;
+  }
+
+  .quick-btn:hover .quick-circle {
+    border-color: #6c7cff;
+  }
+
+  .quick-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #14141c;
+    border: 1px solid #2a2a35;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .15s;
+  }
+
+  .quick-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #site-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 50;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 12px;
+    color: #555;
+    background: #0a0a0f;
+    border-top: 1px solid #1c1c28;
+    pointer-events: none;
+  }
+</style>
 </head>
 <body>
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-blob a"></div>
+    <div class="ambient-blob b"></div>
+    <div class="ambient-blob c"></div>
+  </div>
+
 
   <div id="browser-chrome">
     <div id="tab-bar">
@@ -123,7 +182,6 @@
     <div id="home-frame" class="active">
       <div id="home-inner">
         <img id="home-logo" src="obsidianlogo.png" alt="Dizzy" onerror="this.src='logo.gif'">
-        <div id="home-title">Dizzy | By Wes</div>
         <form id="home-form" onsubmit="homeSearch(event)">
           <input id="home-search" type="text" placeholder="Search or enter a URL" autocomplete="off">
         </form>
@@ -164,5 +222,83 @@
       BrowserTabs.openTab(raw);
     }
   </script>
+
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+  <script>
+  (function () {
+    var canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var dots = [];
+    var mouse = { x: -9999, y: -9999 };
+    var colors = ['#8b7cf7', '#6c7cff', '#a78bfa', '#c4b5fd'];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      var count = Math.min(70, Math.floor((canvas.width * canvas.height) / 18000));
+      dots = [];
+      for (var i = 0; i < count; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          r: Math.random() * 2 + 0.8,
+          c: colors[(Math.random() * colors.length) | 0],
+          a: Math.random() * 0.35 + 0.2
+        });
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', function (e) {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+    });
+    resize();
+
+    function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < dots.length; i++) {
+        var p = dots[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        for (var j = i + 1; j < dots.length; j++) {
+          var q = dots[j];
+          var dx = p.x - q.x, dy = p.y - q.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 130) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(108,124,255,' + (0.16 * (1 - d / 130)).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+        var mdx = mouse.x - p.x, mdy = mouse.y - p.y;
+        var md = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (md < 140) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(167,139,250,' + (0.22 * (1 - md / 140)).toFixed(3) + ')';
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.fillStyle = p.c;
+        ctx.globalAlpha = p.a;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
+
+  <div id="site-footer">made by wes</div>
 </body>
 </html>

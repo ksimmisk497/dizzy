@@ -72,21 +72,32 @@
     input[type="button"]:active { background: #252535; }
 
     .letter-section.hidden { display: none; }
-
-    /* Skeleton */
-    #loading-skeleton { padding: 12px 0; }
-    .skel-header { height: 10px; width: 40px; background: #1c1c28; border-radius: 4px; margin-bottom: 14px; }
-    .skel-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-    .skel-btn {
-      height: 34px; border-radius: 8px;
-      background: linear-gradient(90deg, #14141c 25%, #1c1c28 50%, #14141c 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s infinite;
+100% { background-position: -200% 0; } }
+  
+    #site-footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 50;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: #555;
+      background: #0a0a0f;
+      border-top: 1px solid #1c1c28;
+      pointer-events: none;
     }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  </style>
+    #tab-content-area { bottom: 32px !important; }
+</style>
 </head>
 <body>
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-blob a"></div>
+    <div class="ambient-blob b"></div>
+    <div class="ambient-blob c"></div>
+  </div>
+
 
   <div id="browser-chrome">
     <div id="tab-bar">
@@ -123,60 +134,15 @@
           <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
         </div>
 
-        <div id="loading-skeleton">
-          <div class="skel-header"></div>
-          <div class="skel-row">
-            <div class="skel-btn" style="width:90px"></div>
-            <div class="skel-btn" style="width:120px"></div>
-            <div class="skel-btn" style="width:75px"></div>
-            <div class="skel-btn" style="width:140px"></div>
-            <div class="skel-btn" style="width:100px"></div>
-            <div class="skel-btn" style="width:85px"></div>
-          </div>
-          <div class="skel-header"></div>
-          <div class="skel-row">
-            <div class="skel-btn" style="width:130px"></div>
-            <div class="skel-btn" style="width:80px"></div>
-            <div class="skel-btn" style="width:115px"></div>
-            <div class="skel-btn" style="width:70px"></div>
-            <div class="skel-btn" style="width:100px"></div>
-          </div>
-        </div>
-
         <div id="sections-container"></div>
       </div>
     </div>
   </div>
 
-  <!-- Override window.open BEFORE game.js loads so all game launches go through tabs -->
-  <script>
-    (function() {
-      var _open = window.open.bind(window);
-      window.open = function(url, name, features) {
-        // If it looks like a game URL, open in our tab system
-        if (url && url !== 'about:blank' && typeof BrowserTabs !== 'undefined') {
-          BrowserTabs.openTab(url);
-          return { focus: function(){}, closed: false };
-        }
-        // BrowserTabs not ready yet — queue it
-        if (url && url !== 'about:blank') {
-          window._pendingTabUrl = url;
-          document.addEventListener('DOMContentLoaded', function() {
-            if (window._pendingTabUrl && typeof BrowserTabs !== 'undefined') {
-              BrowserTabs.openTab(window._pendingTabUrl);
-              window._pendingTabUrl = null;
-            }
-          });
-          return { focus: function(){}, closed: false };
-        }
-        return _open(url, name, features);
-      };
-    })();
-  </script>
-
   <!-- UGS game scripts -->
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js" async></script>
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js" async></script>
+
 
   <!-- UV + browser engine -->
   <script src="uv/uv.bundle.js" defer></script>
@@ -184,68 +150,121 @@
   <script src="register-sw.js" defer></script>
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
-
+  
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {
-      BrowserTabs.init({ homeLabel: 'Games' });
-    });
+      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Games' });
 
-    // ── Strip "cl" prefix + intercept clicks to open in tab ─────────────────
-    function fixLabel(el) {
-      if (el.tagName !== 'INPUT' || el.type !== 'button') return;
-      var v = el.value || '';
-      if (v.startsWith('cl')) el.value = v.slice(2);
-      if (el.dataset.tabwired) return;
-      el.dataset.tabwired = '1';
-      el.addEventListener('click', function(e) {
-        var raw = el.getAttribute('onclick') || '';
-        var match = raw.match(/https?:\/\/[^'")\s]+/);
-        if (match) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          BrowserTabs.openTab(match[0]);
-        }
-      }, true);
-    }
-
-    document.querySelectorAll('input[type="button"]').forEach(fixLabel);
-
-    var fixObs = new MutationObserver(function(muts) {
-      muts.forEach(function(m) {
-        m.addedNodes.forEach(function(node) {
-          if (node.nodeType !== 1) return;
-          if (node.tagName === 'INPUT' && node.type === 'button') fixLabel(node);
-          if (node.querySelectorAll) node.querySelectorAll('input[type="button"]').forEach(fixLabel);
+      // Only clean "cl" prefix — do NOT block UGS game opens
+      function stripCl(el) {
+        if (!el || el.tagName !== 'INPUT' || el.type !== 'button') return;
+        var v = el.value || '';
+        if (v.indexOf('cl') === 0) el.value = v.slice(2);
+      }
+      document.querySelectorAll('input[type="button"]').forEach(stripCl);
+      var obs = new MutationObserver(function(muts) {
+        muts.forEach(function(m) {
+          m.addedNodes.forEach(function(node) {
+            if (node.nodeType !== 1) return;
+            if (node.tagName === 'INPUT') stripCl(node);
+            if (node.querySelectorAll) node.querySelectorAll('input[type="button"]').forEach(stripCl);
+          });
         });
       });
-    });
-    fixObs.observe(document.body, { childList: true, subtree: true });
+      obs.observe(document.body, { childList: true, subtree: true });
 
-    // ── Search filter ─────────────────────────────────────────────────────────
-    var searchInput = document.getElementById('searchInput');
-
-    function filterGames() {
-      var q = searchInput.value.trim().toLowerCase();
-      document.querySelectorAll('#sections-container input[type="button"]').forEach(function(btn) {
-        btn.style.display = (!q || (btn.value || '').toLowerCase().includes(q)) ? '' : 'none';
-      });
-      document.querySelectorAll('.letter-section').forEach(function(sec) {
-        var vis = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
-        sec.classList.toggle('hidden', vis === 0);
-      });
-    }
-
-    searchInput.addEventListener('input', filterGames);
-
-    var skelObs = new MutationObserver(function() {
-      if (searchInput.value) filterGames();
-      if (document.querySelectorAll('#sections-container input[type="button"]').length > 0) {
-        var skel = document.getElementById('loading-skeleton');
-        if (skel) skel.style.display = 'none';
+      var searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          var q = searchInput.value.trim().toLowerCase();
+          document.querySelectorAll('#sections-container input[type="button"]').forEach(function(btn) {
+            btn.style.display = (!q || (btn.value || '').toLowerCase().includes(q)) ? '' : 'none';
+          });
+          document.querySelectorAll('.letter-section').forEach(function(sec) {
+            var vis = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
+            sec.classList.toggle('hidden', vis === 0);
+          });
+        });
       }
-    });
-    skelObs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
+});
   </script>
 
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+  <script>
+  (function () {
+    var canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var dots = [];
+    var mouse = { x: -9999, y: -9999 };
+    var colors = ['#8b7cf7', '#6c7cff', '#a78bfa', '#c4b5fd'];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      var count = Math.min(70, Math.floor((canvas.width * canvas.height) / 18000));
+      dots = [];
+      for (var i = 0; i < count; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          r: Math.random() * 2 + 0.8,
+          c: colors[(Math.random() * colors.length) | 0],
+          a: Math.random() * 0.35 + 0.2
+        });
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', function (e) {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+    });
+    resize();
+
+    function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < dots.length; i++) {
+        var p = dots[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        for (var j = i + 1; j < dots.length; j++) {
+          var q = dots[j];
+          var dx = p.x - q.x, dy = p.y - q.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 130) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(108,124,255,' + (0.16 * (1 - d / 130)).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+        var mdx = mouse.x - p.x, mdy = mouse.y - p.y;
+        var md = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (md < 140) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(167,139,250,' + (0.22 * (1 - md / 140)).toFixed(3) + ')';
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.fillStyle = p.c;
+        ctx.globalAlpha = p.a;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
+
+  <div id="site-footer">made by wes</div>
 </body>
 </html>

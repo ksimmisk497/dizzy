@@ -1,3 +1,186 @@
+
+/* ── Background layers (always visible) ─────────────────────────── */
+.ambient-bg {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  background: #0a0a0f !important;
+}
+
+#particles-canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.6;
+  will-change: transform;
+}
+
+.ambient-blob.a {
+  width: min(58vw, 520px);
+  height: min(58vw, 520px);
+  left: 6%;
+  top: 10%;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(120, 90, 220, 0.6) 0%,
+    rgba(90, 60, 180, 0.3) 42%,
+    transparent 70%);
+  animation: ambientDriftA 18s ease-in-out infinite alternate;
+}
+
+.ambient-blob.b {
+  width: min(64vw, 580px);
+  height: min(64vw, 580px);
+  right: 4%;
+  bottom: 4%;
+  background: radial-gradient(circle at 55% 45%,
+    rgba(150, 80, 210, 0.5) 0%,
+    rgba(100, 50, 170, 0.25) 45%,
+    transparent 72%);
+  animation: ambientDriftB 22s ease-in-out infinite alternate;
+}
+
+.ambient-blob.c {
+  width: min(40vw, 360px);
+  height: min(40vw, 360px);
+  left: 40%;
+  top: 45%;
+  opacity: 0.35;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(80, 70, 160, 0.35) 0%,
+    transparent 68%);
+  animation: ambientDriftC 20s ease-in-out infinite alternate;
+}
+
+@keyframes ambientDriftA {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(4%, 3%) scale(1.08); }
+}
+@keyframes ambientDriftB {
+  0% { transform: translate(0, 0) scale(1.05); }
+  100% { transform: translate(-5%, -2%) scale(0.96); }
+}
+@keyframes ambientDriftC {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(3%, -4%) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob { animation: none !important; }
+}
+
+
+/* ── Ambient purple void (behind everything) ───────────────────────── */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: #0a0a0f;
+}
+
+#particles-js {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.55;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.ambient-blob.a {
+  width: min(58vw, 520px);
+  height: min(58vw, 520px);
+  left: 8%;
+  top: 12%;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(120, 90, 220, 0.55) 0%,
+    rgba(90, 60, 180, 0.28) 42%,
+    rgba(10, 10, 15, 0) 70%);
+  animation: ambientDriftA 18s ease-in-out infinite alternate;
+}
+
+.ambient-blob.b {
+  width: min(64vw, 580px);
+  height: min(64vw, 580px);
+  right: 4%;
+  bottom: 6%;
+  left: auto;
+  top: auto;
+  background: radial-gradient(circle at 55% 45%,
+    rgba(150, 80, 210, 0.48) 0%,
+    rgba(100, 50, 170, 0.22) 45%,
+    rgba(10, 10, 15, 0) 72%);
+  animation: ambientDriftB 22s ease-in-out infinite alternate;
+}
+
+.ambient-blob.c {
+  width: min(40vw, 360px);
+  height: min(40vw, 360px);
+  left: 42%;
+  top: 48%;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(80, 70, 160, 0.22) 0%,
+    rgba(10, 10, 15, 0) 68%);
+  animation: ambientDriftC 20s ease-in-out infinite alternate;
+  opacity: 0.4;
+}
+
+@keyframes ambientDriftA {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(4%, 3%, 0) scale(1.08); }
+}
+
+@keyframes ambientDriftB {
+  0%   { transform: translate3d(0, 0, 0) scale(1.05); }
+  100% { transform: translate3d(-5%, -2%, 0) scale(0.96); }
+}
+
+@keyframes ambientDriftC {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(3%, -4%, 0) scale(1.1); }
+}
+
+/* Stacking: ambient at 0, content above, chrome on top */
+#chrome-height-spacer {
+  position: relative;
+  z-index: 1;
+}
+
+#tab-content-area {
+  z-index: 1;
+}
+
+#browser-chrome {
+  z-index: 1000;
+}
+
+#site-footer {
+  z-index: 50;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob { animation: none !important; }
+}
+
 /* ── Shared browser chrome styles ── */
 * { box-sizing: border-box; }
 html, body {
@@ -71,6 +254,7 @@ html, body {
   flex-shrink: 0;
 }
 .tab-title {
+  max-width: 160px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -191,7 +375,7 @@ html, body {
 #tab-content-area {
   position: fixed;
   left: 0; right: 0; bottom: 0;
-  background: #0a0a0f;
+  background: transparent;
   overflow: hidden;
 }
 
@@ -212,3 +396,8 @@ html, body {
   display: none;
 }
 #home-frame.active { display: block; }
+
+#tab-content-area { background: transparent !important; }
+#home-frame { background: transparent !important; }
+.tab-frame { background: #0a0a0f; }
+#browser-chrome { background: rgba(10,10,15,0.92) !important; backdrop-filter: blur(8px); }

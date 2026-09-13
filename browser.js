@@ -1,3 +1,30 @@
+/* DIZZY_OPEN_GUARD */
+(function () {
+  var _open = window.open;
+  window.open = function (url, name, features) {
+    // UGS games use about:blank + document.write — let real browser handle that
+    if (!url || url === "about:blank" || String(url).indexOf("about:blank") === 0) {
+      return _open.apply(window, arguments);
+    }
+    if (typeof url === "string") {
+      var label = "";
+      try {
+        var ae = document.activeElement;
+        if (ae) {
+          if (ae.tagName === "INPUT" && ae.type === "button") label = ae.value || "";
+          else if (ae.tagName === "BUTTON") label = (ae.textContent || "").trim();
+        }
+      } catch (e) {}
+      if (label.indexOf("cl") === 0) label = label.slice(2);
+      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+        BrowserTabs.openTab(url, label || undefined);
+        return { focus: function () {}, close: function () {}, closed: false, location: { href: url } };
+      }
+    }
+    return _open.apply(window, arguments);
+  };
+})();
+
 // ── Shared browser tab engine — used by both index.html and games.html ──────
 "use strict";
 
@@ -25,9 +52,21 @@ var BrowserTabs = (function() {
     // Hijack window.open so game.js and any other script can't spawn real browser tabs
     var _origOpen = window.open.bind(window);
     window.open = function(url, name, features) {
-      if (url && url !== 'about:blank' && typeof url === 'string') {
-        openTab(url);
-        return { focus: function(){}, closed: false, location: { href: url } };
+      if (!url || url === 'about:blank' || String(url).indexOf('about:blank') === 0) {
+        return _origOpen(url, name, features);
+      }
+      if (typeof url === 'string') {
+        var label = '';
+        try {
+          var ae = document.activeElement;
+          if (ae) {
+            if (ae.tagName === 'INPUT' && ae.type === 'button') label = ae.value || '';
+            else if (ae.tagName === 'BUTTON') label = (ae.textContent || '').trim();
+          }
+        } catch (e) {}
+        if (label && label.indexOf('cl') === 0) label = label.slice(2);
+        openTab(url, label || undefined);
+        return { focus: function(){}, closed: false, location: { href: url }, close: function(){} };
       }
       return _origOpen(url, name, features);
     };
@@ -36,7 +75,9 @@ var BrowserTabs = (function() {
     var queued = sessionStorage.getItem('dizzy_open_tab');
     if (queued) {
       sessionStorage.removeItem('dizzy_open_tab');
-      waitForUV(function() { openTab(queued); });
+      var qTitle = sessionStorage.getItem('dizzy_open_title') || '';
+      sessionStorage.removeItem('dizzy_open_title');
+      waitForUV(function() { openTab(queued, qTitle || undefined); });
     }
   }
 
@@ -75,57 +116,85 @@ var BrowserTabs = (function() {
     });
   }
 
-  function openTab(url) {
+  function openTab(url, tabTitle) {
     if (!url) { switchTab('home'); return; }
     var id = genId();
+    var initialTitle = (tabTitle && String(tabTitle).trim()) ? String(tabTitle).trim() : 'Loading…';
+    var lockTitle = !!(tabTitle && String(tabTitle).trim());
 
-    // Tab button
     var tabEl = document.createElement('div');
     tabEl.className = 'tab';
     tabEl.id = 'tabEl_' + id;
     tabEl.innerHTML =
       '<div class="tab-favicon-placeholder" id="fav_' + id + '"></div>' +
-      '<span class="tab-title" id="title_' + id + '">Loading\u2026</span>' +
+      '<span class="tab-title" id="title_' + id + '"></span>' +
       '<div class="tab-loading" id="spin_' + id + '"></div>' +
-      '<button class="tab-close" title="Close">\u00d7</button>';
+      '<button class="tab-close" title="Close">×</button>';
+    tabEl.querySelector('.tab-title').textContent = initialTitle;
     tabEl.querySelector('.tab-close').onclick = function(e) {
-      e.stopPropagation(); closeTab(id);
+      e.stopPropagation();
+      closeTab(id);
     };
     tabEl.onclick = function() { switchTab(id); };
     tabBar.insertBefore(tabEl, newTabBtn);
 
-    // iframe
     var frame = document.createElement('iframe');
     frame.className = 'tab-frame';
     frame.id = 'frame_' + id;
     frame.setAttribute('allowfullscreen', '');
-    frame.setAttribute('allow', 'autoplay; fullscreen');
+    frame.setAttribute('allow', 'autoplay; fullscreen; gamepad; clipboard-write');
     contentArea.appendChild(frame);
 
-    tabs.push({ id: id, url: url, title: 'Loading\u2026', frameEl: frame, tabEl: tabEl });
+    tabs.push({
+      id: id,
+      url: url,
+      title: initialTitle,
+      frameEl: frame,
+      tabEl: tabEl,
+      lockedTitle: lockTitle
+    });
     switchTab(id);
     tabEl.scrollIntoView({ behavior: 'smooth', inline: 'end' });
 
-    encodeURL(url, function(proxied) {
-      frame.src = proxied;
-
+    // Local/blob HTML games: load directly (no UV)
+    if (/^(blob:|data:)/i.test(url) || url.indexOf('UGS-Files') !== -1) {
+      frame.src = url;
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
+        if (lockTitle) updateTabTitle(id, initialTitle);
+      });
+      return;
+    }
+
+    encodeURL(url, function(proxied) {
+      frame.src = proxied;
+      frame.addEventListener('load', function() {
+        var spin = document.getElementById('spin_' + id);
+        if (spin) spin.style.display = 'none';
+        var tab = null;
+        for (var i = 0; i < tabs.length; i++) {
+          if (tabs[i].id === id) { tab = tabs[i]; break; }
+        }
+        if (tab && tab.lockedTitle) {
+          updateTabTitle(id, tab.title);
+          return;
+        }
         try {
           var fdoc = frame.contentDocument || frame.contentWindow.document;
-          var title = fdoc.title || url;
+          var title = (fdoc && fdoc.title) ? fdoc.title : url;
           updateTabTitle(id, title);
           var favLink = fdoc.querySelector('link[rel*="icon"]');
           if (favLink) setTabFavicon(id, favLink.href);
-        } catch(_) {
-          updateTabTitle(id, url);
+        } catch (err) {
           try {
-            var domain = new URL(url).origin;
-            setTabFavicon(id, domain + '/favicon.ico');
-          } catch(_) {}
+            var domain = new URL(url).hostname;
+            updateTabTitle(id, domain);
+            setTabFavicon(id, 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=32');
+          } catch (e2) {
+            updateTabTitle(id, url);
+          }
         }
-        if (activeTab === id) updateAddressBar(id);
       });
     });
   }
