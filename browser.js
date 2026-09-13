@@ -108,17 +108,17 @@ var BrowserTabs = (function() {
     function finish() {
       try {
         if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
-          // Fallback: open duckduckgo directly if UV missing
-          var template = 'https://duckduckgo.com/?q=%s';
+          // Fallback: open bing directly if UV missing
+          var template = 'https://www.bing.com/search?q=%s';
           var url = typeof search === 'function' ? search(raw, template) : raw;
           cb(url);
           return;
         }
-        var template = 'https://duckduckgo.com/?q=%s';
+        var template = 'https://www.bing.com/search?q=%s';
         var url = typeof search === 'function' ? search(raw, template) : raw;
         cb(__uv$config.prefix + __uv$config.encodeUrl(url));
       } catch (e) {
-        cb('https://duckduckgo.com/?q=' + encodeURIComponent(raw));
+        cb('https://www.bing.com/search?q=' + encodeURIComponent(raw));
       }
     }
     waitForUV(function() {

@@ -18,7 +18,7 @@ self.addEventListener("fetch", function (e) {
   // Never cache proxy / bare / service routes
   if (url.indexOf("/service/") !== -1) return;
   if (url.indexOf("workers.dev") !== -1) return;
-  if (url.indexOf("duckduckgo") !== -1) return;
+  if (url.indexOf("bing") !== -1) return;
   if (url.indexOf("tiktok") !== -1) return;
   // network-only for navigations
   if (e.request.mode === "navigate") {
