@@ -69,27 +69,6 @@
       color: #bbb;
     }
 
-    .browser-card {
-      background: linear-gradient(145deg, rgba(20,20,30,.96), rgba(14,14,22,.96));
-      border-color: rgba(130,110,255,.22);
-      box-shadow: 0 14px 45px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.025);
-    }
-    .browser-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
-    .browser-card-head h3 { margin-bottom:6px; }
-    .browser-current { flex:none; padding:6px 9px; border-radius:999px; background:rgba(130,100,255,.13); border:1px solid rgba(130,100,255,.25); color:#c8bfff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; }
-    .browser-list { display:grid; gap:8px; }
-    .browser-option { width:100%; display:flex; align-items:center; gap:12px; padding:11px; border:1px solid #292936; border-radius:12px; background:rgba(12,12,18,.72); color:#fff; text-align:left; cursor:pointer; transition:transform .16s, border-color .16s, background .16s, box-shadow .16s; }
-    .browser-option:hover { transform:translateY(-1px); border-color:rgba(130,110,255,.48); background:rgba(25,23,38,.9); }
-    .browser-option.selected { border-color:rgba(139,124,247,.72); background:linear-gradient(90deg, rgba(110,85,220,.18), rgba(50,40,80,.18)); box-shadow:0 0 0 1px rgba(139,124,247,.08), 0 8px 24px rgba(65,45,140,.12); }
-    .browser-icon { width:36px; height:36px; flex:none; display:grid; place-items:center; border-radius:10px; font-size:17px; font-weight:800; background:#20202b; border:1px solid #343444; overflow:hidden; }
-    .engine-logo { width:24px; height:24px; object-fit:contain; display:block; }
-    .dizzy-icon { background:linear-gradient(135deg,#201536,#12121c); border-color:rgba(139,124,247,.45); box-shadow:inset 0 0 18px rgba(139,124,247,.08); }
-    .dizzy-icon .engine-logo { width:27px; height:27px; filter:drop-shadow(0 0 7px rgba(167,139,250,.45)); }
-    .browser-option-copy { min-width:0; display:flex; align-items:center; flex:1; }
-    .browser-option-copy strong { font-size:13px; font-weight:600; }
-    .browser-check { opacity:0; width:22px; height:22px; display:grid; place-items:center; border-radius:50%; background:rgba(139,124,247,.2); color:#c8bfff; font-size:12px; font-weight:800; }
-    .browser-option.selected .browser-check { opacity:1; }
-    @media (max-width:560px) { .browser-card-head { flex-direction:column; } .browser-current { align-self:flex-start; } }
   </style>
 </head>
 <body>
@@ -127,20 +106,6 @@
   <div id="tab-content-area">
     <div id="home-frame" class="active">
       <div id="settings-inner">
-        <div class="s-card browser-card">
-          <div class="browser-card-head">
-            <div><h3>Search browser</h3></div>
-            <span class="browser-current">DuckDuckGo</span>
-          </div>
-          <div class="browser-list">
-            <div class="browser-option selected" aria-pressed="true">
-              <span class="browser-icon"><img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo" class="engine-logo"></span>
-              <span class="browser-option-copy"><strong>DuckDuckGo</strong></span>
-              <span class="browser-check">✓</span>
-            </div>
-          </div>
-        </div>
-
         <div class="s-card">
           <h3>Tab cloak</h3>
           <div class="s-row">
