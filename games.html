@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dizzy | Games</title>
+  <title>Dizzy</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,6 +90,20 @@
     }
     #tab-content-area { bottom: 32px !important; }
 </style>
+
+  <script>
+    document.title = 'Dizzy';
+    try {
+      Object.defineProperty(document, 'title', {
+        configurable: true,
+        get: function () { return 'Dizzy'; },
+        set: function () { /* keep Dizzy */ }
+      });
+    } catch (e) {
+      setInterval(function () { if (document.title !== 'Dizzy') document.title = 'Dizzy'; }, 1000);
+    }
+  </script>
+
 </head>
 <body>
   <div class="ambient-bg" aria-hidden="true">
@@ -105,7 +119,7 @@
         <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
         <span class="tab-title">Games</span>
       </div>
-      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New tab">+</button>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
     </div>
     <div id="address-bar-row">
       <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
@@ -119,8 +133,8 @@
       <button class="nav-btn" onclick="window.location.href='index.html'" title="Home">⌂</button>
     </div>
     <div id="page-nav">
-      <a href="index.html">Home</a>
-      <a href="games.html" class="active">Games</a>
+      <a href="index.html"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg>Home</a>
+      <a href="games.html" class="active"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/></svg>Games</a>
     </div>
   </div>
 
@@ -212,7 +226,9 @@
           vy: (Math.random() - 0.5) * 0.45,
           r: Math.random() * 2 + 0.8,
           c: colors[(Math.random() * colors.length) | 0],
-          a: Math.random() * 0.35 + 0.2
+          a: Math.random() * 0.4 + 0.28,
+          tw: Math.random() * Math.PI * 2,
+          tws: 0.02 + Math.random() * 0.04
         });
       }
     }
@@ -234,9 +250,9 @@
           var q = dots[j];
           var dx = p.x - q.x, dy = p.y - q.y;
           var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 130) {
+          if (d < 140) {
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(108,124,255,' + (0.16 * (1 - d / 130)).toFixed(3) + ')';
+            ctx.strokeStyle = 'rgba(108,124,255,' + (0.32 * (1 - d / 140)).toFixed(3) + ')';
             ctx.lineWidth = 1;
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
@@ -247,15 +263,19 @@
         var md = Math.sqrt(mdx * mdx + mdy * mdy);
         if (md < 140) {
           ctx.beginPath();
-          ctx.strokeStyle = 'rgba(167,139,250,' + (0.22 * (1 - md / 140)).toFixed(3) + ')';
+          ctx.strokeStyle = 'rgba(167,139,250,' + (0.38 * (1 - md / 150)).toFixed(3) + ')';
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
           ctx.stroke();
         }
+        p.tw += p.tws || 0.03;
+        var twinkle = 0.55 + 0.45 * Math.sin(p.tw || 0);
+        // occasional stronger pulse
+        if (((Math.sin(p.tw * 0.35) + 1) * 0.5) > 0.97) twinkle = 1;
         ctx.beginPath();
         ctx.fillStyle = p.c;
-        ctx.globalAlpha = p.a;
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.globalAlpha = Math.min(1, (p.a || 0.3) * twinkle);
+        ctx.arc(p.x, p.y, p.r * (0.85 + 0.25 * twinkle), 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
       }

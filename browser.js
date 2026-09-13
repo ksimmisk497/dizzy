@@ -116,11 +116,82 @@ var BrowserTabs = (function() {
     });
   }
 
+
+  function isHomeUrl(url) {
+    if (!url) return true;
+    try {
+      var u = new URL(url, location.href);
+      var path = (u.pathname || '').split('/').pop() || '';
+      return path === '' || path === 'index.html' || path === 'index.htm';
+    } catch (e) {
+      return /index\.html?$/i.test(String(url));
+    }
+  }
+
+  function buildHomeSrcdoc() {
+    var logo = 'obsidianlogo.png';
+    try { logo = new URL('obsidianlogo.png', location.href).href; } catch (e) {}
+    var tiktok = 'tiktok.png', discord = 'discord.png', roblox = 'roblox.png', spotify = 'spotify.png';
+    try {
+      tiktok = new URL('tiktok.png', location.href).href;
+      discord = new URL('discord.png', location.href).href;
+      roblox = new URL('roblox.png', location.href).href;
+      spotify = new URL('spotify.png', location.href).href;
+    } catch (e2) {}
+
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">' +
+      '<style>' +
+      '*{box-sizing:border-box}html,body{margin:0;padding:0;min-height:100%;background:transparent;color:#fff;' +
+      'font-family:Open Sans,system-ui,sans-serif}' +
+      'body{display:flex;flex-direction:column;align-items:center;padding:48px 20px 40px}' +
+      '#logo{height:110px;width:auto;object-fit:contain;margin-bottom:22px;' +
+      'filter:drop-shadow(0 0 28px rgba(120,100,220,.35))}' +
+      '#search{padding:14px 22px;border:1px solid rgba(108,124,255,.35);border-radius:12px;font-size:15px;' +
+      'width:min(400px,92vw);background:rgba(20,20,28,.85);color:#fff;text-align:center;outline:none;' +
+      'font-family:inherit;box-shadow:0 0 0 1px rgba(108,124,255,.08),0 0 24px rgba(108,124,255,.12)}' +
+      '#search::placeholder{color:#9a9aab}' +
+      '#search:focus{border-color:rgba(140,150,255,.7);box-shadow:0 0 0 3px rgba(108,124,255,.18),0 0 36px rgba(108,124,255,.22)}' +
+      '#quick{display:flex;justify-content:center;gap:36px;padding:28px 0 0;flex-wrap:wrap}' +
+      '.q{display:flex;flex-direction:column;align-items:center;gap:10px;color:#b0b0c0;font-size:11px;font-weight:600;' +
+      'letter-spacing:.6px;text-transform:uppercase;background:none;border:none;cursor:pointer;font-family:inherit}' +
+      '.q:hover{color:#e8e8ff}' +
+      '.c{width:62px;height:62px;border-radius:50%;background:rgba(20,20,28,.9);border:1px solid rgba(108,124,255,.22);' +
+      'overflow:hidden;display:flex;align-items:center;justify-content:center;transition:box-shadow .2s,border-color .2s}' +
+      '.q:hover .c{border-color:rgba(140,150,255,.75);box-shadow:0 0 0 3px rgba(108,124,255,.15),0 0 22px rgba(108,124,255,.35)}' +
+      '.c img{width:60%;height:60%;object-fit:contain}' +
+      '</style></head><body>' +
+      '<img id="logo" src="' + logo + '" alt="Dizzy">' +
+      '<input id="search" type="text" placeholder="Search or enter a URL" autocomplete="off">' +
+      '<div id="quick">' +
+      '<button class="q" data-url="https://tiktok.com"><div class="c"><img src="' + tiktok + '"></div>TikTok</button>' +
+      '<button class="q" data-url="https://discord.com"><div class="c"><img src="' + discord + '"></div>Discord</button>' +
+      '<button class="q" data-url="https://roblox.com"><div class="c"><img src="' + roblox + '"></div>Roblox</button>' +
+      '<button class="q" data-url="https://spotify.com"><div class="c"><img src="' + spotify + '"></div>Spotify</button>' +
+      '</div>' +
+      '<script>' +
+      'function go(u){try{parent.BrowserTabs.openTab(u)}catch(e){location.href=u}}' +
+      'document.getElementById("search").addEventListener("keydown",function(e){' +
+      'if(e.key==="Enter"){var v=this.value.trim();if(v)go(v)}});' +
+      'document.querySelectorAll(".q").forEach(function(b){' +
+      'b.addEventListener("click",function(){go(b.getAttribute("data-url"))})});' +
+      '<\/script></body></html>';
+  }
+
   function openTab(url, tabTitle) {
-    if (!url) { switchTab('home'); return; }
+    var isNewHome = false;
+    if (!url) {
+      isNewHome = true;
+      try {
+        url = new URL('index.html?embed=1', location.href).href;
+      } catch (e) {
+        url = 'index.html?embed=1';
+      }
+      tabTitle = 'New Tab';
+    }
     var id = genId();
     var initialTitle = (tabTitle && String(tabTitle).trim()) ? String(tabTitle).trim() : 'Loading…';
-    var lockTitle = !!(tabTitle && String(tabTitle).trim());
+    var lockTitle = !!(tabTitle && String(tabTitle).trim()) || isNewHome;
 
     var tabEl = document.createElement('div');
     tabEl.className = 'tab';
@@ -137,6 +208,12 @@ var BrowserTabs = (function() {
     };
     tabEl.onclick = function() { switchTab(id); };
     tabBar.insertBefore(tabEl, newTabBtn);
+    if (isNewHome) {
+      setTabFavicon(id, (function() {
+        try { return new URL('favicon.png', location.href).href; } catch (e) { return 'favicon.png'; }
+      })());
+      updateTabTitle(id, 'New Tab');
+    }
 
     var frame = document.createElement('iframe');
     frame.className = 'tab-frame';
@@ -151,18 +228,30 @@ var BrowserTabs = (function() {
       title: initialTitle,
       frameEl: frame,
       tabEl: tabEl,
-      lockedTitle: lockTitle
+      lockedTitle: lockTitle,
+      isHome: !!isNewHome,
+      addressLabel: isNewHome ? 'New Tab' : null
     });
     switchTab(id);
     tabEl.scrollIntoView({ behavior: 'smooth', inline: 'end' });
 
-    // Local/blob HTML games: load directly (no UV)
-    if (/^(blob:|data:)/i.test(url) || url.indexOf('UGS-Files') !== -1) {
+    // Same-origin / embed home / blob: load directly (no UV)
+    var sameOrigin = false;
+    try { sameOrigin = new URL(url, location.href).origin === location.origin; } catch (e) {}
+    if (isNewHome || sameOrigin || /^(blob:|data:)/i.test(url) || url.indexOf('UGS-Files') !== -1) {
       frame.src = url;
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
-        if (lockTitle) updateTabTitle(id, initialTitle);
+        if (isNewHome) {
+          updateTabTitle(id, 'New Tab');
+          setTabFavicon(id, (function() {
+            try { return new URL('favicon.png', location.href).href; } catch (e) { return 'favicon.png'; }
+          })());
+          if (activeTab === id) updateAddressBar(id);
+        } else if (lockTitle) {
+          updateTabTitle(id, initialTitle);
+        }
       });
       return;
     }
@@ -225,13 +314,24 @@ var BrowserTabs = (function() {
   function updateAddressBar(id) {
     var tab = tabs.find(function(t) { return t.id === id; });
     if (!tab) return;
+    // Home / New Tab panels: show label, never file:// URLs
+    if (tab.isHome || tab.addressLabel === 'New Tab' || (tab.title === 'New Tab' && tab.lockedTitle)) {
+      addressInput.value = 'New Tab';
+      addressInput.classList.add('home-tab');
+      return;
+    }
     try {
-      var src = tab.frameEl.src;
+      var src = tab.frameEl.src || '';
+      if (/^file:/i.test(src) || /embed=1/i.test(src) || /index\.html/i.test(src)) {
+        addressInput.value = tab.title || 'New Tab';
+        addressInput.classList.add('home-tab');
+        return;
+      }
       if (src && typeof __uv$config !== 'undefined' && src.includes(__uv$config.prefix)) {
         var encoded = src.replace(__uv$config.prefix, '');
         addressInput.value = __uv$config.decodeUrl(encoded);
       } else {
-        addressInput.value = tab.url;
+        addressInput.value = tab.url || '';
       }
     } catch(_) { addressInput.value = tab.url || ''; }
     addressInput.classList.remove('home-tab');
@@ -254,7 +354,7 @@ var BrowserTabs = (function() {
     if (el) el.textContent = title || 'Tab';
     var tab = tabs.find(function(t) { return t.id === id; });
     if (tab) tab.title = title;
-    if (activeTab === id) document.title = title || 'Dizzy';
+    if (activeTab === id) document.title = 'Dizzy';
   }
 
   function setTabFavicon(id, src) {

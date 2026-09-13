@@ -401,3 +401,236 @@ html, body {
 #home-frame { background: transparent !important; }
 .tab-frame { background: #0a0a0f; }
 #browser-chrome { background: rgba(10,10,15,0.92) !important; backdrop-filter: blur(8px); }
+
+
+/* ── Balanced ambient + home polish ───────────────────────────────── */
+.ambient-blob.a {
+  width: min(70vw, 620px) !important;
+  height: min(70vw, 620px) !important;
+  left: 50% !important;
+  top: 18% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  opacity: 0.65 !important;
+  background: radial-gradient(circle at 50% 45%,
+    rgba(130, 100, 230, 0.55) 0%,
+    rgba(100, 70, 190, 0.28) 40%,
+    transparent 70%) !important;
+  animation: ambientDriftCenter 20s ease-in-out infinite alternate !important;
+}
+
+.ambient-blob.b {
+  width: min(50vw, 440px) !important;
+  height: min(50vw, 440px) !important;
+  left: auto !important;
+  right: 6% !important;
+  top: auto !important;
+  bottom: 10% !important;
+  opacity: 0.45 !important;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(140, 90, 220, 0.4) 0%,
+    rgba(90, 55, 170, 0.18) 45%,
+    transparent 72%) !important;
+  animation: ambientDriftB 22s ease-in-out infinite alternate !important;
+}
+
+.ambient-blob.c {
+  width: min(36vw, 320px) !important;
+  height: min(36vw, 320px) !important;
+  left: 8% !important;
+  top: auto !important;
+  bottom: 18% !important;
+  opacity: 0.28 !important;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(100, 80, 180, 0.32) 0%,
+    transparent 68%) !important;
+}
+
+@keyframes ambientDriftCenter {
+  0%   { transform: translateX(-50%) translate(0, 0) scale(1); }
+  100% { transform: translateX(-50%) translate(1.5%, 2%) scale(1.06); }
+}
+
+
+/* ── Softened ambient falloff ───────────────────────────────────── */
+.ambient-blob {
+  filter: blur(95px) !important;
+}
+
+.ambient-blob.a {
+  width: min(85vw, 780px) !important;
+  height: min(85vw, 780px) !important;
+  left: 50% !important;
+  top: 12% !important;
+  opacity: 0.48 !important;
+  background: radial-gradient(circle at 50% 42%,
+    rgba(125, 95, 220, 0.42) 0%,
+    rgba(100, 70, 190, 0.18) 32%,
+    rgba(70, 50, 140, 0.07) 55%,
+    transparent 78%) !important;
+  animation: ambientDriftCenter 22s ease-in-out infinite alternate !important;
+}
+
+.ambient-blob.b {
+  width: min(58vw, 520px) !important;
+  height: min(58vw, 520px) !important;
+  right: 4% !important;
+  bottom: 6% !important;
+  opacity: 0.32 !important;
+  filter: blur(100px) !important;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(140, 90, 210, 0.32) 0%,
+    rgba(90, 55, 160, 0.12) 40%,
+    transparent 75%) !important;
+}
+
+.ambient-blob.c {
+  width: min(42vw, 380px) !important;
+  height: min(42vw, 380px) !important;
+  left: 6% !important;
+  bottom: 14% !important;
+  opacity: 0.22 !important;
+  filter: blur(100px) !important;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(95, 75, 170, 0.25) 0%,
+    transparent 72%) !important;
+}
+
+
+/* ── Motion + expanded nav + settings ───────────────────────────── */
+#page-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+#page-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #8a8a9a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  transition: color .2s, background .2s, box-shadow .2s;
+}
+#page-nav a:hover {
+  color: #e8e8ff;
+  background: rgba(108,124,255,0.1);
+}
+#page-nav a.active {
+  color: #fff;
+  background: rgba(108,124,255,0.16);
+  box-shadow: 0 0 0 1px rgba(108,124,255,0.25);
+}
+#page-nav a .nav-ico {
+  width: 14px;
+  height: 14px;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+/* Page fade when navigating */
+body.page-fade-out {
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+body.page-fade-in {
+  opacity: 1;
+  transition: opacity .28s ease;
+}
+html.nav-pending body {
+  opacity: 0.01;
+}
+
+/* Settings panel */
+#settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#settings-overlay.open { display: flex; }
+#settings-panel {
+  width: min(400px, 94vw);
+  background: rgba(16, 16, 24, 0.96);
+  border: 1px solid rgba(108,124,255,0.25);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(108,124,255,0.12);
+  padding: 22px 22px 18px;
+  color: #e8e8ff;
+  font-family: 'Open Sans', system-ui, sans-serif;
+}
+#settings-panel h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px;
+}
+.settings-row:last-of-type { border-bottom: none; }
+.settings-row label { color: #c8c8d8; }
+.settings-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #6c7cff;
+  cursor: pointer;
+}
+.settings-row input[type="range"] {
+  width: 120px;
+  accent-color: #6c7cff;
+  cursor: pointer;
+}
+.settings-row select {
+  background: #14141c;
+  color: #fff;
+  border: 1px solid #2a2a35;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+#settings-close {
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(108,124,255,0.35);
+  background: rgba(108,124,255,0.15);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s;
+}
+#settings-close:hover {
+  background: rgba(108,124,255,0.28);
+  box-shadow: 0 0 20px rgba(108,124,255,0.25);
+}
+
+/* Quick icon hover scale + ring */
+.quick-btn:hover .quick-circle,
+.quick-btn:hover .c {
+  transform: scale(1.08);
+}
+.quick-circle,
+.c {
+  transition: transform .2s ease, border-color .2s, box-shadow .25s !important;
+}

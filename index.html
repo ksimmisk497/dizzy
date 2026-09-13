@@ -21,11 +21,12 @@
   }
 
   #home-logo {
-    height: 110px;
+    height: 118px;
     width: auto;
     border-radius: 0;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
     object-fit: contain;
+    filter: drop-shadow(0 0 28px rgba(120, 100, 220, 0.35));
   }
 
   #home-title {
@@ -45,26 +46,34 @@
   }
 
   #home-search {
-    padding: 13px 20px;
-    border: 1px solid #2a2a35;
-    border-radius: 10px;
+    padding: 14px 22px;
+    border: 1px solid rgba(108, 124, 255, 0.35);
+    border-radius: 12px;
     font-size: 15px;
-    width: min(380px, 92vw);
-    background: #14141c;
+    width: min(400px, 92vw);
+    background: rgba(20, 20, 28, 0.85);
     color: #fff;
     text-align: center;
     outline: none;
     font-family: 'Open Sans', sans-serif;
-    transition: border-color .2s, box-shadow .2s;
+    transition: border-color .2s, box-shadow .25s, background .2s;
+    box-shadow:
+      0 0 0 1px rgba(108, 124, 255, 0.08),
+      0 0 24px rgba(108, 124, 255, 0.12),
+      0 8px 32px rgba(0, 0, 0, 0.35);
   }
 
   #home-search::placeholder {
-    color: #6a6a78;
+    color: #9a9aab;
   }
 
   #home-search:focus {
-    border-color: #6c7cff;
-    box-shadow: 0 0 0 3px rgba(108,124,255,0.2);
+    border-color: rgba(140, 150, 255, 0.7);
+    background: rgba(22, 22, 34, 0.95);
+    box-shadow:
+      0 0 0 3px rgba(108, 124, 255, 0.18),
+      0 0 36px rgba(108, 124, 255, 0.22),
+      0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   #home-error {
@@ -78,8 +87,8 @@
   #quick-links {
     display: flex;
     justify-content: center;
-    gap: 24px;
-    padding: 22px 20px 8px;
+    gap: 36px;
+    padding: 28px 20px 12px;
     flex-wrap: wrap;
   }
 
@@ -87,25 +96,41 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
-    color: #888;
+    gap: 10px;
+    color: #b0b0c0;
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
     font-family: 'Open Sans', sans-serif;
     background: none;
     border: none;
     cursor: pointer;
-    transition: color .15s;
+    transition: color .2s, transform .2s;
   }
 
   .quick-btn:hover {
-    color: #fff;
+    color: #e8e8ff;
+    transform: translateY(-2px);
   }
 
   .quick-btn:hover .quick-circle {
-    border-color: #6c7cff;
+    transform: scale(1.08);
+    border-color: rgba(140, 150, 255, 0.75);
+    box-shadow:
+      0 0 0 3px rgba(108, 124, 255, 0.15),
+      0 0 22px rgba(108, 124, 255, 0.35),
+      0 8px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .quick-circle {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: rgba(20, 20, 28, 0.9);
+    border: 1px solid rgba(108, 124, 255, 0.22);
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .25s, transform .2s;
   }
 
   .quick-circle {
@@ -142,6 +167,47 @@
     pointer-events: none;
   }
 </style>
+
+  <script>
+    (function () {
+      var embed = /(?:\?|&)embed=1(?:&|$)/.test(location.search) || window !== window.top;
+      if (!embed) return;
+      document.documentElement.classList.add('dizzy-embed');
+      function hideChrome() {
+        var chrome = document.getElementById('browser-chrome');
+        var spacer = document.getElementById('chrome-height-spacer');
+        var footer = document.getElementById('site-footer');
+        var area = document.getElementById('tab-content-area');
+        if (chrome) chrome.style.display = 'none';
+        if (spacer) spacer.style.display = 'none';
+        if (footer) footer.style.display = 'none';
+        if (area) {
+          area.style.top = '0';
+          area.style.bottom = '0';
+        }
+        var home = document.getElementById('home-frame');
+        if (home) home.classList.add('active');
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideChrome);
+      } else hideChrome();
+    })();
+  </script>
+
+
+  <script>
+    document.title = 'Dizzy';
+    try {
+      Object.defineProperty(document, 'title', {
+        configurable: true,
+        get: function () { return 'Dizzy'; },
+        set: function () { /* keep Dizzy */ }
+      });
+    } catch (e) {
+      setInterval(function () { if (document.title !== 'Dizzy') document.title = 'Dizzy'; }, 1000);
+    }
+  </script>
+
 </head>
 <body>
   <div class="ambient-bg" aria-hidden="true">
@@ -157,7 +223,7 @@
         <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
         <span class="tab-title">New Tab</span>
       </div>
-      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New tab">+</button>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
     </div>
     <div id="address-bar-row">
       <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
@@ -171,8 +237,8 @@
       <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
     </div>
     <div id="page-nav">
-      <a href="index.html" class="active">Home</a>
-      <a href="games.html">Games</a>
+      <a href="index.html" class="active"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg>Home</a>
+      <a href="games.html"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/></svg>Games</a>
     </div>
   </div>
 
@@ -246,7 +312,9 @@
           vy: (Math.random() - 0.5) * 0.45,
           r: Math.random() * 2 + 0.8,
           c: colors[(Math.random() * colors.length) | 0],
-          a: Math.random() * 0.35 + 0.2
+          a: Math.random() * 0.4 + 0.28,
+          tw: Math.random() * Math.PI * 2,
+          tws: 0.02 + Math.random() * 0.04
         });
       }
     }
@@ -268,9 +336,9 @@
           var q = dots[j];
           var dx = p.x - q.x, dy = p.y - q.y;
           var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 130) {
+          if (d < 140) {
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(108,124,255,' + (0.16 * (1 - d / 130)).toFixed(3) + ')';
+            ctx.strokeStyle = 'rgba(108,124,255,' + (0.32 * (1 - d / 140)).toFixed(3) + ')';
             ctx.lineWidth = 1;
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
@@ -281,15 +349,19 @@
         var md = Math.sqrt(mdx * mdx + mdy * mdy);
         if (md < 140) {
           ctx.beginPath();
-          ctx.strokeStyle = 'rgba(167,139,250,' + (0.22 * (1 - md / 140)).toFixed(3) + ')';
+          ctx.strokeStyle = 'rgba(167,139,250,' + (0.38 * (1 - md / 150)).toFixed(3) + ')';
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
           ctx.stroke();
         }
+        p.tw += p.tws || 0.03;
+        var twinkle = 0.55 + 0.45 * Math.sin(p.tw || 0);
+        // occasional stronger pulse
+        if (((Math.sin(p.tw * 0.35) + 1) * 0.5) > 0.97) twinkle = 1;
         ctx.beginPath();
         ctx.fillStyle = p.c;
-        ctx.globalAlpha = p.a;
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.globalAlpha = Math.min(1, (p.a || 0.3) * twinkle);
+        ctx.arc(p.x, p.y, p.r * (0.85 + 0.25 * twinkle), 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
       }
