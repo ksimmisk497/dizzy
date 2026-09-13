@@ -8,61 +8,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <link rel="preload" href="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js" as="script">
   <link rel="preload" href="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js" as="script">
+  <link rel="preload" href="uv/uv.bundle.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="browser.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Games home screen */
+    #home-frame { overflow-y: auto; }
 
-    html, body {
-      background: #0a0a0f;
-      color: #f2f2f7;
-      font-family: 'Open Sans', system-ui, sans-serif;
-      min-height: 100%;
-    }
-
-    /* ── Nav ── */
-    .nav {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding: 18px 20px 0;
-      border-bottom: 1px solid #1c1c28;
-      background: #0a0a0f;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .nav a {
-      text-decoration: none;
-      color: #888;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 8px 18px;
-      border-radius: 8px 8px 0 0;
-      border: 1px solid transparent;
-      border-bottom: none;
-      transition: color .15s, background .15s;
-    }
-    .nav a:hover { color: #fff; background: #14141c; }
-    .nav a.active {
-      color: #fff;
-      background: #14141c;
-      border-color: #2a2a35;
-      border-bottom: 1px solid #0a0a0f;
-      margin-bottom: -1px;
+    #games-inner {
+      padding: 16px 20px 80px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
-    /* ── Search ── */
-    #search-wrap {
-      text-align: center;
-      padding: 22px 20px 0;
-    }
+    #game-search-wrap { text-align: center; padding: 16px 0 10px; }
     #searchInput {
-      padding: 12px 20px;
+      padding: 11px 18px;
       border: 1px solid #2a2a35;
       border-radius: 10px;
       font-size: 14px;
@@ -70,62 +35,15 @@
       background: #14141c;
       color: #fff;
       outline: none;
-      font-family: inherit;
+      font-family: 'Open Sans', sans-serif;
       transition: border-color .2s, box-shadow .2s;
     }
     #searchInput::placeholder { color: #4a4a58; }
-    #searchInput:focus {
-      border-color: #6c7cff;
-      box-shadow: 0 0 0 3px rgba(108,124,255,0.18);
-    }
+    #searchInput:focus { border-color: #6c7cff; box-shadow: 0 0 0 3px rgba(108,124,255,0.18); }
 
-    /* ── Quick links circles ── */
-    #quick-links {
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      padding: 20px 20px 18px;
-    }
-    .quick-link {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
-      text-decoration: none;
-      color: #888;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      transition: color .15s;
-    }
-    .quick-link:hover { color: #fff; }
-    .quick-link:hover .quick-circle { border-color: #6c7cff; background: #1a1a2e; }
-    .quick-circle {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      background: #14141c;
-      border: 1px solid #2a2a35;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color .15s, background .15s;
-      overflow: hidden;
-    }
-    .quick-circle img {
-      width: 30px;
-      height: 30px;
-      object-fit: contain;
-    }
-
-    /* ── Letter sections ── */
-    #sections-container {
-      padding: 8px 20px 80px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .letter-section { margin-bottom: 32px; }
+    /* Letter sections */
+    #sections-container { margin-top: 8px; }
+    .letter-section { margin-bottom: 28px; }
     .letter-header {
       font-size: 11px;
       font-weight: 600;
@@ -145,165 +63,188 @@
       border: 1px solid #2a2a35;
       border-radius: 8px;
       font-size: 13px;
-      font-family: inherit;
+      font-family: 'Open Sans', sans-serif;
       cursor: pointer;
       transition: background .15s, border-color .15s, color .15s;
       white-space: nowrap;
     }
-    input[type="button"]:hover {
-      background: #1e1e2e;
-      border-color: #6c7cff;
-      color: #fff;
-    }
+    input[type="button"]:hover { background: #1e1e2e; border-color: #6c7cff; color: #fff; }
     input[type="button"]:active { background: #252535; }
 
-    /* ── Footer — stays at very bottom of page content, not fixed ── */
-    #footer {
-      width: 100%;
-      background: #0a0a0f;
-      border-top: 1px solid #1c1c28;
-      padding: 14px 0;
-      text-align: center;
-      font-size: 12px;
-      color: #555;
-    }
-    #footer p { margin: 0; }
-
     .letter-section.hidden { display: none; }
-    /* ── Loading skeleton ── */
-    #loading-skeleton {
-      padding: 12px 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .skel-header {
-      height: 10px;
-      width: 40px;
-      background: #1c1c28;
-      border-radius: 4px;
-      margin-bottom: 14px;
-    }
-    .skel-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
+
+    /* Skeleton */
+    #loading-skeleton { padding: 12px 0; }
+    .skel-header { height: 10px; width: 40px; background: #1c1c28; border-radius: 4px; margin-bottom: 14px; }
+    .skel-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
     .skel-btn {
-      height: 34px;
-      border-radius: 8px;
+      height: 34px; border-radius: 8px;
       background: linear-gradient(90deg, #14141c 25%, #1c1c28 50%, #14141c 75%);
       background-size: 200% 100%;
       animation: shimmer 1.2s infinite;
     }
-    @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   </style>
 </head>
 <body>
 
-  <nav class="nav">
-    <a href="index.html">Home</a>
-    <a href="games.html" class="active">Games</a>
-  </nav>
-
-  <div id="search-wrap">
-    <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
-  </div>
-
-
-  <!-- Skeleton shown while game.js loads -->
-  <div id="loading-skeleton">
-    <div class="skel-header"></div>
-    <div class="skel-row">
-      <div class="skel-btn" style="width:90px"></div>
-      <div class="skel-btn" style="width:120px"></div>
-      <div class="skel-btn" style="width:75px"></div>
-      <div class="skel-btn" style="width:140px"></div>
-      <div class="skel-btn" style="width:100px"></div>
-      <div class="skel-btn" style="width:85px"></div>
-      <div class="skel-btn" style="width:110px"></div>
-      <div class="skel-btn" style="width:95px"></div>
+  <div id="browser-chrome">
+    <div id="tab-bar">
+      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+        <span class="tab-title">Games</span>
+      </div>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New tab">+</button>
     </div>
-    <div class="skel-header"></div>
-    <div class="skel-row">
-      <div class="skel-btn" style="width:130px"></div>
-      <div class="skel-btn" style="width:80px"></div>
-      <div class="skel-btn" style="width:115px"></div>
-      <div class="skel-btn" style="width:70px"></div>
-      <div class="skel-btn" style="width:100px"></div>
-      <div class="skel-btn" style="width:145px"></div>
+    <div id="address-bar-row">
+      <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
+      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
+      <button class="nav-btn" id="btn-reload"  onclick="BrowserTabs.tabReload()"  title="Reload">&#8635;</button>
+      <input id="address-input" class="home-tab" type="text" placeholder="Search or enter URL"
+             value="Games" autocomplete="off"
+             onfocus="BrowserTabs.addressFocus()"
+             onblur="BrowserTabs.addressBlur()"
+             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+      <button class="nav-btn" onclick="window.location.href='index.html'" title="Home">⌂</button>
     </div>
-    <div class="skel-header"></div>
-    <div class="skel-row">
-      <div class="skel-btn" style="width:88px"></div>
-      <div class="skel-btn" style="width:122px"></div>
-      <div class="skel-btn" style="width:76px"></div>
-      <div class="skel-btn" style="width:105px"></div>
-      <div class="skel-btn" style="width:93px"></div>
+    <div id="page-nav">
+      <a href="index.html">Home</a>
+      <a href="games.html" class="active">Games</a>
     </div>
   </div>
 
-  <div id="sections-container"></div>
+  <div id="chrome-height-spacer"></div>
 
-  <div id="footer"><p>© 2026 Crown Games. All rights reserved.</p></div>
+  <div id="tab-content-area">
+    <!-- Games list as the "home" screen for this page -->
+    <div id="home-frame" class="active">
+      <div id="games-inner">
+        <div id="game-search-wrap">
+          <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
+        </div>
 
+        <div id="loading-skeleton">
+          <div class="skel-header"></div>
+          <div class="skel-row">
+            <div class="skel-btn" style="width:90px"></div>
+            <div class="skel-btn" style="width:120px"></div>
+            <div class="skel-btn" style="width:75px"></div>
+            <div class="skel-btn" style="width:140px"></div>
+            <div class="skel-btn" style="width:100px"></div>
+            <div class="skel-btn" style="width:85px"></div>
+          </div>
+          <div class="skel-header"></div>
+          <div class="skel-row">
+            <div class="skel-btn" style="width:130px"></div>
+            <div class="skel-btn" style="width:80px"></div>
+            <div class="skel-btn" style="width:115px"></div>
+            <div class="skel-btn" style="width:70px"></div>
+            <div class="skel-btn" style="width:100px"></div>
+          </div>
+        </div>
+
+        <div id="sections-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Override window.open BEFORE game.js loads so all game launches go through tabs -->
+  <script>
+    (function() {
+      var _open = window.open.bind(window);
+      window.open = function(url, name, features) {
+        // If it looks like a game URL, open in our tab system
+        if (url && url !== 'about:blank' && typeof BrowserTabs !== 'undefined') {
+          BrowserTabs.openTab(url);
+          return { focus: function(){}, closed: false };
+        }
+        // BrowserTabs not ready yet — queue it
+        if (url && url !== 'about:blank') {
+          window._pendingTabUrl = url;
+          document.addEventListener('DOMContentLoaded', function() {
+            if (window._pendingTabUrl && typeof BrowserTabs !== 'undefined') {
+              BrowserTabs.openTab(window._pendingTabUrl);
+              window._pendingTabUrl = null;
+            }
+          });
+          return { focus: function(){}, closed: false };
+        }
+        return _open(url, name, features);
+      };
+    })();
+  </script>
+
+  <!-- UGS game scripts -->
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js" async></script>
   <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js" async></script>
 
-  <script>
-    // ── Strip "cl" prefix UGS puts on game names ─────────────────────────────
+  <!-- UV + browser engine -->
+  <script src="uv/uv.bundle.js" defer></script>
+  <script src="uv/uv.config.js" defer></script>
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="browser.js" defer></script>
+
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+      BrowserTabs.init({ homeLabel: 'Games' });
+    });
+
+    // ── Strip "cl" prefix + intercept clicks to open in tab ─────────────────
     function fixLabel(el) {
-      if (el.tagName === 'INPUT' && el.type === 'button') {
-        let v = el.value || '';
-        if (v.startsWith('cl')) el.value = v.slice(2);
-      }
+      if (el.tagName !== 'INPUT' || el.type !== 'button') return;
+      var v = el.value || '';
+      if (v.startsWith('cl')) el.value = v.slice(2);
+      if (el.dataset.tabwired) return;
+      el.dataset.tabwired = '1';
+      el.addEventListener('click', function(e) {
+        var raw = el.getAttribute('onclick') || '';
+        var match = raw.match(/https?:\/\/[^'")\s]+/);
+        if (match) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          BrowserTabs.openTab(match[0]);
+        }
+      }, true);
     }
 
-    // Run on any already-present buttons
     document.querySelectorAll('input[type="button"]').forEach(fixLabel);
 
-    // Watch for UGS injecting buttons dynamically
-    const fixObs = new MutationObserver(muts => {
-      for (const m of muts) {
-        for (const node of m.addedNodes) {
-          if (node.nodeType !== 1) continue;
+    var fixObs = new MutationObserver(function(muts) {
+      muts.forEach(function(m) {
+        m.addedNodes.forEach(function(node) {
+          if (node.nodeType !== 1) return;
           if (node.tagName === 'INPUT' && node.type === 'button') fixLabel(node);
-          node.querySelectorAll && node.querySelectorAll('input[type="button"]').forEach(fixLabel);
-        }
-      }
+          if (node.querySelectorAll) node.querySelectorAll('input[type="button"]').forEach(fixLabel);
+        });
+      });
     });
     fixObs.observe(document.body, { childList: true, subtree: true });
 
-    // ── Live search filter ────────────────────────────────────────────────────
-    const searchInput = document.getElementById('searchInput');
+    // ── Search filter ─────────────────────────────────────────────────────────
+    var searchInput = document.getElementById('searchInput');
 
     function filterGames() {
-      const q = searchInput.value.trim().toLowerCase();
-      document.querySelectorAll('#sections-container input[type="button"]').forEach(btn => {
-        const match = !q || (btn.value || '').toLowerCase().includes(q);
-        btn.style.display = match ? '' : 'none';
+      var q = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll('#sections-container input[type="button"]').forEach(function(btn) {
+        btn.style.display = (!q || (btn.value || '').toLowerCase().includes(q)) ? '' : 'none';
       });
-      document.querySelectorAll('.letter-section').forEach(sec => {
-        const visible = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
-        sec.classList.toggle('hidden', visible === 0);
+      document.querySelectorAll('.letter-section').forEach(function(sec) {
+        var vis = sec.querySelectorAll('input[type="button"]:not([style*="display: none"])').length;
+        sec.classList.toggle('hidden', vis === 0);
       });
     }
 
     searchInput.addEventListener('input', filterGames);
 
-    const searchObs = new MutationObserver(() => {
+    var skelObs = new MutationObserver(function() {
       if (searchInput.value) filterGames();
-      // Hide skeleton once real buttons appear
       if (document.querySelectorAll('#sections-container input[type="button"]').length > 0) {
-        const skel = document.getElementById('loading-skeleton');
+        var skel = document.getElementById('loading-skeleton');
         if (skel) skel.style.display = 'none';
       }
     });
-    searchObs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
+    skelObs.observe(document.getElementById('sections-container'), { childList: true, subtree: true });
   </script>
 
 </body>

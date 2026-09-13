@@ -1,0 +1,214 @@
+/* ── Shared browser chrome styles ── */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: #0a0a0f;
+  color: #f2f2f7;
+  font-family: 'Open Sans', system-ui, sans-serif;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+#browser-chrome {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: #0a0a0f;
+  border-bottom: 1px solid #1c1c28;
+  user-select: none;
+}
+
+/* Tab bar */
+#tab-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 8px 8px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #14141c;
+  border: 1px solid #2a2a35;
+  border-bottom: 1px solid #0a0a0f;
+  border-radius: 8px 8px 0 0;
+  min-width: 120px;
+  max-width: 200px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  color: #888;
+  position: relative;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+  margin-bottom: -1px;
+}
+.tab.active {
+  background: #1c1c2e;
+  color: #fff;
+  border-color: #3a3a50;
+  border-bottom-color: #1c1c2e;
+  z-index: 1;
+}
+.tab:hover:not(.active) { background: #16161f; color: #bbb; }
+
+.tab-favicon {
+  width: 14px; height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.tab-favicon-placeholder {
+  width: 14px; height: 14px;
+  border-radius: 2px;
+  background: #2a2a35;
+  flex-shrink: 0;
+}
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.tab-loading {
+  width: 10px; height: 10px;
+  border: 1.5px solid #3a3a50;
+  border-top-color: #6c7cff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tab-close {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .1s, color .1s;
+  padding: 0; line-height: 1;
+}
+.tab-close:hover { background: #3a2a2a; color: #f77; }
+
+#new-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid #2a2a35;
+  background: transparent;
+  color: #666;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-bottom: 1px;
+  transition: background .15s, color .15s;
+}
+#new-tab-btn:hover { background: #14141c; color: #fff; }
+
+/* Address bar row */
+#address-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+}
+.nav-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid #2a2a35;
+  background: #14141c;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .1s, color .1s;
+}
+.nav-btn:hover { background: #1e1e2e; color: #fff; }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+#address-input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #2a2a35;
+  border-radius: 8px;
+  background: #14141c;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+#address-input:focus {
+  border-color: #6c7cff;
+  box-shadow: 0 0 0 2px rgba(108,124,255,0.18);
+}
+#address-input.home-tab { color: #555; font-style: italic; }
+
+/* Page nav links */
+#page-nav {
+  display: flex;
+  gap: 6px;
+  padding: 0 8px 7px;
+}
+#page-nav a {
+  text-decoration: none;
+  color: #666;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-family: 'Open Sans', sans-serif;
+  transition: color .15s, background .15s;
+}
+#page-nav a:hover,
+#page-nav a.active { color: #fff; background: #14141c; border-color: #2a2a35; }
+
+/* Content area */
+#chrome-height-spacer { flex-shrink: 0; }
+
+#tab-content-area {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #0a0a0f;
+  overflow: hidden;
+}
+
+.tab-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  border: none;
+  display: none;
+}
+.tab-frame.active { display: block; }
+
+#home-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  overflow-y: auto;
+  display: none;
+}
+#home-frame.active { display: block; }
