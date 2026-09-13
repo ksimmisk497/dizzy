@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dizzy</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="browser.css">
+  <script src="cloak.js"></script>
+  <style>
+    #settings-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 28px 20px 90px;
+      font-family: 'Open Sans', system-ui, sans-serif;
+      color: #e8e8ff;
+    }
+    .s-card {
+      background: rgba(20,20,28,0.92);
+      border: 1px solid #2a2a35;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .s-card h3 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #a8a8bc;
+      font-weight: 600;
+    }
+    .s-row { margin-bottom: 12px; }
+    .s-row label {
+      display: block;
+      font-size: 12px;
+      color: #9a9aac;
+      margin-bottom: 6px;
+    }
+    .s-row input, .s-row select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #2a2a35;
+      background: #12121a;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .s-row input:focus, .s-row select:focus {
+      border-color: rgba(108,124,255,0.6);
+    }
+    .s-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .s-btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(108,124,255,0.35);
+      background: rgba(108,124,255,0.16);
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .s-btn:hover { background: rgba(108,124,255,0.28); }
+    .s-btn.ghost {
+      background: transparent;
+      border-color: #2a2a35;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-blob a"></div>
+    <div class="ambient-blob b"></div>
+    <div class="ambient-blob c"></div>
+  </div>
+
+  <div id="browser-chrome">
+    <div id="tab-bar">
+      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+        <span class="tab-title">Settings</span>
+      </div>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
+      <div id="page-nav">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="apps.html">Apps</a>
+        <a href="settings.html" class="active">Settings</a>
+      </div>
+    </div>
+    <div id="address-bar-row">
+      <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()" title="Back">&#8592;</button>
+      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
+      <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()" title="Reload">&#8635;</button>
+      <input id="address-input" class="home-tab" type="text" value="Settings" autocomplete="off"
+             onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
+             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+      <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
+    </div>
+  </div>
+  <div id="chrome-height-spacer"></div>
+  <div id="tab-content-area">
+    <div id="home-frame" class="active">
+      <div id="settings-inner">
+        <div class="s-card">
+          <h3>Tab cloak</h3>
+          <div class="s-row">
+            <label>Title</label>
+            <input id="cloak-title" type="text" placeholder="Dizzy">
+          </div>
+          <div class="s-row">
+            <label>Favicon URL</label>
+            <input id="cloak-favicon" type="text" placeholder="favicon.png">
+          </div>
+          <div class="s-row">
+            <label>Preset</label>
+            <select id="cloak-preset">
+              <option value="">Custom</option>
+              <option value="classroom">Google Classroom</option>
+              <option value="drive">Google Drive</option>
+              <option value="docs">Google Docs</option>
+              <option value="gmail">Gmail</option>
+              <option value="canvas">Canvas</option>
+            </select>
+          </div>
+          <div class="s-actions">
+            <button type="button" class="s-btn" id="cloak-save">Save</button>
+            <button type="button" class="s-btn ghost" id="cloak-reset">Reset</button>
+          </div>
+        </div>
+        <div class="s-card">
+          <h3>Panic</h3>
+          <div class="s-row">
+            <label>Key</label>
+            <input id="panic-key" type="text" maxlength="2" placeholder="`">
+          </div>
+          <div class="s-row">
+            <label>URL</label>
+            <input id="panic-url" type="text" placeholder="https://classroom.google.com/">
+          </div>
+          <div class="s-actions">
+            <button type="button" class="s-btn" id="panic-save">Save</button>
+            <button type="button" class="s-btn ghost" id="panic-test">Test</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="uv/uv.bundle.js" defer></script>
+  <script src="uv/uv.config.js" defer></script>
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="browser.js" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Settings' });
+      var presets = {
+        classroom: { title: 'Home', favicon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+        drive: { title: 'My Drive - Google Drive', favicon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
+        docs: { title: 'Google Docs', favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
+        gmail: { title: 'Inbox', favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
+        canvas: { title: 'Canvas', favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' }
+      };
+      var cfg = DizzyCloak.load();
+      document.getElementById('cloak-title').value = cfg.title || '';
+      document.getElementById('cloak-favicon').value = cfg.favicon || '';
+      document.getElementById('panic-key').value = cfg.panicKey || '`';
+      document.getElementById('panic-url').value = cfg.panicUrl || 'https://classroom.google.com/';
+
+      document.getElementById('cloak-preset').addEventListener('change', function () {
+        var p = presets[this.value];
+        if (!p) return;
+        document.getElementById('cloak-title').value = p.title;
+        document.getElementById('cloak-favicon').value = p.favicon;
+      });
+
+      document.getElementById('cloak-save').onclick = function () {
+        var c = DizzyCloak.load();
+        c.title = document.getElementById('cloak-title').value.trim() || 'Dizzy';
+        c.favicon = document.getElementById('cloak-favicon').value.trim() || 'favicon.png';
+        DizzyCloak.save(c);
+        DizzyCloak.apply(c);
+      };
+      document.getElementById('cloak-reset').onclick = function () {
+        var c = DizzyCloak.load();
+        c.title = 'Dizzy';
+        c.favicon = 'favicon.png';
+        DizzyCloak.save(c);
+        DizzyCloak.apply(c);
+        document.getElementById('cloak-title').value = c.title;
+        document.getElementById('cloak-favicon').value = c.favicon;
+        document.getElementById('cloak-preset').value = '';
+      };
+      document.getElementById('panic-save').onclick = function () {
+        var c = DizzyCloak.load();
+        c.panicKey = document.getElementById('panic-key').value || '`';
+        c.panicUrl = document.getElementById('panic-url').value.trim() || 'https://classroom.google.com/';
+        DizzyCloak.save(c);
+      };
+      document.getElementById('panic-test').onclick = function () {
+        DizzyCloak.panic();
+      };
+    });
+  </script>
+  <div id="site-footer">made by wes</div>
+</body>
+</html>

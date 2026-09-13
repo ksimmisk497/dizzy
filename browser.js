@@ -346,7 +346,7 @@ var BrowserTabs = (function() {
       if (ht) ht.classList.add('active');
       addressInput.value = homeLabel;
       addressInput.classList.add('home-tab');
-      document.title = 'Dizzy';
+      document.title = (window.DizzyCloak && DizzyCloak.load().title) || 'Dizzy';
     } else {
       var tab = tabs.find(function(t) { return t.id === id; });
       if (!tab) return;
@@ -400,7 +400,7 @@ var BrowserTabs = (function() {
     if (el) el.textContent = title || 'Tab';
     var tab = tabs.find(function(t) { return t.id === id; });
     if (tab) tab.title = title;
-    if (activeTab === id) document.title = 'Dizzy';
+    if (activeTab === id) document.title = (window.DizzyCloak && DizzyCloak.load().title) || 'Dizzy';
   }
 
   function setTabFavicon(id, src) {

@@ -11,6 +11,7 @@
   <link rel="preload" href="uv/uv.bundle.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="browser.css">
+  <script src="cloak.js"></script>
 <style>
 
   #home-inner {
@@ -196,16 +197,19 @@
 
 
   <script>
-    document.title = 'Dizzy';
-    try {
-      Object.defineProperty(document, 'title', {
-        configurable: true,
-        get: function () { return 'Dizzy'; },
-        set: function () { /* keep Dizzy */ }
-      });
-    } catch (e) {
-      setInterval(function () { if (document.title !== 'Dizzy') document.title = 'Dizzy'; }, 1000);
-    }
+    (function () {
+      function desired() {
+        try {
+          var c = JSON.parse(localStorage.getItem('dizzy_cloak_v1') || '{}');
+          return (c && c.title) ? c.title : 'Dizzy';
+        } catch (e) { return 'Dizzy'; }
+      }
+      document.title = desired();
+      setInterval(function () {
+        var d = desired();
+        if (document.title !== d) document.title = d;
+      }, 1500);
+    })();
   </script>
 
 </head>
@@ -224,10 +228,12 @@
         <span class="tab-title">New Tab</span>
       </div>
       <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
-      <div id="page-nav">
-      <a href="index.html" class="active"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg>Home</a>
-      <a href="games.html"><svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/></svg>Games</a>
-    </div>
+            <div id="page-nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="games.html">Games</a>
+        <a href="apps.html">Apps</a>
+        <a href="settings.html">Settings</a>
+      </div>
     </div>
     <div id="address-bar-row">
       <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>

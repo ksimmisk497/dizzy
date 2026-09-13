@@ -1,32 +1,40 @@
 "use strict";
 /**
- *
  * @param {string} input
- * @param {string} template Template for a search query.
+ * @param {string} template Template for a search query (must contain %s).
  * @returns {string} Fully qualified URL
  */
 function search(input, template) {
-  try {
-    // input is a valid URL:
-    // eg: https://example.com, https://example.com/test?q=param
-    return new URL(input).toString();
-  } catch (err) {
-    // input was not a valid URL
+  input = String(input || "").trim();
+  if (!input) return template.replace("%s", "");
+
+  // Numbers-only (e.g. "67", "12345") → always search, never treat as host/IP
+  if (/^[\d\s]+$/.test(input)) {
+    return template.replace("%s", encodeURIComponent(input));
   }
 
+  // Full URL already
   try {
-    // input is a valid URL when http:// is added to the start:
-    // eg: example.com, https://example.com/test?q=param
-    const url = new URL(`http://${input}`);
-    // only if the hostname has a TLD/subdomain
-    if (url.hostname.includes(".")) return url.toString();
-  } catch (err) {
-    // input was not valid URL
-  }
+    var direct = new URL(input);
+    // Block raw IP navigation (causes Cloudflare 1003 through the proxy)
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(direct.hostname)) {
+      return template.replace("%s", encodeURIComponent(input));
+    }
+    return direct.toString();
+  } catch (err) {}
 
-  // input may have been a valid URL, however the hostname was invalid
+  // Domain-like without protocol: example.com
+  try {
+    var url = new URL("http://" + input);
+    var host = url.hostname || "";
+    // Require a dot and at least one letter so "67" / "1.2.3.4" don't become hosts
+    if (host.includes(".") && /[a-zA-Z]/i.test(host)) {
+      if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+        return url.toString();
+      }
+    }
+  } catch (err) {}
 
-  // Attempts to convert the input to a fully qualified URL have failed
-  // Treat the input as a search query
+  // Default: search query
   return template.replace("%s", encodeURIComponent(input));
 }

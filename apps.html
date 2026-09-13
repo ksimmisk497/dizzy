@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dizzy</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="browser.css">
+  <script src="cloak.js"></script>
+  <style>
+    #apps-inner { padding: 24px 20px 80px; max-width: 1100px; margin: 0 auto; }
+    #apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 14px;
+    }
+    .app-card {
+      background: rgba(20,20,28,0.9);
+      border: 1px solid #2a2a35;
+      border-radius: 14px;
+      padding: 16px 10px 14px;
+      text-align: center;
+      cursor: pointer;
+      color: #d8d8e8;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Open Sans', system-ui, sans-serif;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    .app-card:hover {
+      border-color: rgba(108,124,255,0.55);
+      box-shadow: 0 0 0 3px rgba(108,124,255,0.12), 0 0 24px rgba(108,124,255,0.2);
+      transform: translateY(-2px);
+      color: #fff;
+    }
+    .app-card .app-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: contain;
+      margin: 0 auto 10px;
+      display: block;
+      background: rgba(255,255,255,0.04);
+    }
+  </style>
+  <script>
+    document.title = 'Dizzy';
+  </script>
+</head>
+<body>
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-blob a"></div>
+    <div class="ambient-blob b"></div>
+    <div class="ambient-blob c"></div>
+  </div>
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+  <div id="browser-chrome">
+    <div id="tab-bar">
+      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+        <span class="tab-title">Apps</span>
+      </div>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
+      <div id="page-nav">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="apps.html" class="active">Apps</a>
+        <a href="settings.html">Settings</a>
+      </div>
+    </div>
+    <div id="address-bar-row">
+      <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()" title="Back">&#8592;</button>
+      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
+      <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()" title="Reload">&#8635;</button>
+      <input id="address-input" class="home-tab" type="text" value="Apps" autocomplete="off"
+             onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
+             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+      <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
+    </div>
+  </div>
+  <div id="chrome-height-spacer"></div>
+  <div id="tab-content-area">
+    <div id="home-frame" class="active">
+      <div id="apps-inner">
+        <div id="apps-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="uv/uv.bundle.js" defer></script>
+  <script src="uv/uv.config.js" defer></script>
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="browser.js" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Apps' });
+      var apps = [
+        ['YouTube', 'https://youtube.com', 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64'],
+        ['TikTok', 'https://tiktok.com', 'https://www.google.com/s2/favicons?domain=tiktok.com&sz=64'],
+        ['Discord', 'https://discord.com', 'https://www.google.com/s2/favicons?domain=discord.com&sz=64'],
+        ['Spotify', 'https://spotify.com', 'https://www.google.com/s2/favicons?domain=spotify.com&sz=64'],
+        ['Roblox', 'https://roblox.com', 'https://www.google.com/s2/favicons?domain=roblox.com&sz=64'],
+        ['Reddit', 'https://reddit.com', 'https://www.google.com/s2/favicons?domain=reddit.com&sz=64'],
+        ['Twitch', 'https://twitch.tv', 'https://www.google.com/s2/favicons?domain=twitch.tv&sz=64'],
+        ['GitHub', 'https://github.com', 'https://www.google.com/s2/favicons?domain=github.com&sz=64'],
+        ['Google', 'https://google.com', 'https://www.google.com/s2/favicons?domain=google.com&sz=64'],
+        ['Gmail', 'https://mail.google.com', 'https://www.google.com/s2/favicons?domain=mail.google.com&sz=64'],
+        ['Classroom', 'https://classroom.google.com', 'https://www.google.com/s2/favicons?domain=classroom.google.com&sz=64'],
+        ['Drive', 'https://drive.google.com', 'https://www.google.com/s2/favicons?domain=drive.google.com&sz=64'],
+        ['Docs', 'https://docs.google.com', 'https://www.google.com/s2/favicons?domain=docs.google.com&sz=64'],
+        ['ChatGPT', 'https://chatgpt.com', 'https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64'],
+        ['X', 'https://x.com', 'https://www.google.com/s2/favicons?domain=x.com&sz=64'],
+        ['Instagram', 'https://instagram.com', 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64'],
+        ['Netflix', 'https://netflix.com', 'https://www.google.com/s2/favicons?domain=netflix.com&sz=64'],
+        ['Pinterest', 'https://pinterest.com', 'https://www.google.com/s2/favicons?domain=pinterest.com&sz=64'],
+        ['Amazon', 'https://amazon.com', 'https://www.google.com/s2/favicons?domain=amazon.com&sz=64'],
+        ['Wikipedia', 'https://wikipedia.org', 'https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64']
+      ];
+      var grid = document.getElementById('apps-grid');
+      apps.forEach(function (a) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'app-card';
+        b.innerHTML = '<img class="app-icon" src="' + a[2] + '" alt="" loading="lazy" onerror="this.style.opacity=0.3">' + a[0];
+        b.onclick = function () {
+          if (window.BrowserTabs) BrowserTabs.openTab(a[1], a[0]);
+        };
+        grid.appendChild(b);
+      });
+    });
+  </script>
+  <script>
+  (function () {
+    var canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var dots = [];
+    var colors = ['#8b7cf7', '#6c7cff', '#a78bfa', '#c4b5fd'];
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      var count = Math.min(55, Math.floor((canvas.width * canvas.height) / 18000));
+      dots = [];
+      for (var i = 0; i < count; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          r: Math.random() * 2 + 0.8,
+          c: colors[(Math.random() * colors.length) | 0],
+          a: Math.random() * 0.4 + 0.28,
+          tw: Math.random() * Math.PI * 2,
+          tws: 0.02 + Math.random() * 0.04
+        });
+      }
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < dots.length; i++) {
+        var p = dots[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        for (var j = i + 1; j < dots.length; j++) {
+          var q = dots[j];
+          var dx = p.x - q.x, dy = p.y - q.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 140) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(108,124,255,' + (0.28 * (1 - d / 140)).toFixed(3) + ')';
+            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+        p.tw += p.tws;
+        var twinkle = 0.55 + 0.45 * Math.sin(p.tw);
+        ctx.beginPath();
+        ctx.fillStyle = p.c;
+        ctx.globalAlpha = Math.min(1, p.a * twinkle);
+        ctx.arc(p.x, p.y, p.r * (0.85 + 0.25 * twinkle), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
+  <div id="site-footer">made by wes</div>
+</body>
+</html>
