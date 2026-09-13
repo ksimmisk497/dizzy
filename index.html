@@ -388,6 +388,17 @@
   })();
   </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var input = document.getElementById('home-search');
+      if (!input) return;
+      var names = { duckduckgo:'DuckDuckGo', google:'Google', bing:'Bing', yahoo:'Yahoo', dizzy:'Dizzy' };
+      var engine = 'dizzy';
+      try { engine = localStorage.getItem('dizzy_search_engine') || 'dizzy'; } catch (e) {}
+      input.placeholder = (names[engine] || 'Dizzy') + ' or enter a URL';
+    });
+  </script>
+
   <div id="site-footer">made by wes</div>
 </body>
 </html>

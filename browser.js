@@ -2,8 +2,22 @@
 (function () {
   var _open = window.open;
   window.open = function (url, name, features) {
-    // UGS games use about:blank + document.write — let real browser handle that
+    // UGS games commonly launch an about:blank window and document.write the game into it.
+    // Keep normal about:blank behavior, but turn game launches into a real Dizzy tab.
     if (!url || url === "about:blank" || String(url).indexOf("about:blank") === 0) {
+      try {
+        var aeGame = document.activeElement;
+        var onGamesPage = /games\.html$/i.test(location.pathname || '');
+        var isGameButton = aeGame && ((aeGame.closest && aeGame.closest('#sections-container')) ||
+          (aeGame.tagName === 'INPUT' && aeGame.type === 'button' && onGamesPage));
+        if (isGameButton && window.BrowserTabs && typeof BrowserTabs.openBlankGameTab === 'function') {
+          var gameLabel = '';
+          if (aeGame.tagName === 'INPUT') gameLabel = aeGame.value || '';
+          else gameLabel = (aeGame.textContent || '').trim();
+          if (gameLabel.indexOf('cl') === 0) gameLabel = gameLabel.slice(2);
+          return BrowserTabs.openBlankGameTab(gameLabel || 'Game');
+        }
+      } catch (eGame) {}
       return _open.apply(window, arguments);
     }
     if (typeof url === "string") {
@@ -57,6 +71,17 @@ var BrowserTabs = (function() {
     var _origOpen = window.open.bind(window);
     window.open = function(url, name, features) {
       if (!url || url === 'about:blank' || String(url).indexOf('about:blank') === 0) {
+        try {
+          var aeGame = document.activeElement;
+          var onGamesPage = /games\.html$/i.test(location.pathname || '');
+          var isGameButton = aeGame && ((aeGame.closest && aeGame.closest('#sections-container')) ||
+            (aeGame.tagName === 'INPUT' && aeGame.type === 'button' && onGamesPage));
+          if (isGameButton && typeof BrowserTabs.openBlankGameTab === 'function') {
+            var gameLabel = aeGame.tagName === 'INPUT' ? (aeGame.value || '') : (aeGame.textContent || '').trim();
+            if (gameLabel.indexOf('cl') === 0) gameLabel = gameLabel.slice(2);
+            return BrowserTabs.openBlankGameTab(gameLabel || 'Game');
+          }
+        } catch (eGame) {}
         return _origOpen(url, name, features);
       }
       if (typeof url === 'string') {
@@ -94,6 +119,89 @@ var BrowserTabs = (function() {
 
   function genId() { return 'tab_' + Math.random().toString(36).slice(2,8); }
 
+  // DIZZY GAME LOADER
+  // Lightweight launch overlay: no artificial multi-second delay. The game
+  // loads underneath it, while the UI simply shows a polished typing loader.
+  function isGameUrl(u) {
+    if (!u) return false;
+    var s = String(u);
+    return /UGS-Files/i.test(s) || /ugs-singlefile/i.test(s) || /UGS-Assets/i.test(s);
+  }
+
+  function createGameLoader(id, title) {
+    var loader = document.createElement('div');
+    loader.className = 'tab-game-loader active';
+    loader.id = 'game-loader_' + id;
+    loader.setAttribute('aria-live', 'polite');
+    loader.innerHTML =
+      '<div class="game-loader-orbit" aria-hidden="true"></div>' +
+      '<div class="game-loader-glow" aria-hidden="true"></div>' +
+      '<div class="game-loader-card">' +
+        '<img class="game-loader-logo" src="obsidianlogo.png" alt="Dizzy">' +
+        '<div class="game-loader-line" aria-hidden="true"></div>' +
+        '<div class="game-loader-title"></div>' +
+        '<div class="game-loader-status" aria-label="Loading"><span class="game-loader-typing">Loading</span><span class="game-loader-caret" aria-hidden="true"></span></div>' +
+      '</div>';
+    loader.querySelector('.game-loader-title').textContent = title || 'Game';
+    loader.dataset.startedAt = String(Date.now());
+    loader.dataset.finishRequested = '0';
+    loader.dataset.failed = '0';
+    contentArea.appendChild(loader);
+    startGameLoaderTyping(loader);
+    return loader;
+  }
+
+  function startGameLoaderTyping(loader) {
+    if (!loader) return;
+    if (loader._typingTimer) clearInterval(loader._typingTimer);
+    var el = loader.querySelector('.game-loader-typing');
+    if (!el) return;
+    var step = 0;
+    var states = ['Loading', 'Loading.', 'Loading..', 'Loading...'];
+    el.textContent = states[0];
+    loader._typingTimer = setInterval(function() {
+      step = (step + 1) % states.length;
+      el.textContent = states[step];
+    }, 330);
+  }
+
+  // Keep the overlay for a tiny amount of time so extremely fast games don't
+  // produce a one-frame flash, but never hold a game back for seconds.
+  var GAME_LOADER_MIN_MS = 250;
+
+  function reallyFinishGameLoader(id, failed) {
+    var loader = document.getElementById('game-loader_' + id);
+    if (!loader) return;
+    if (loader._typingTimer) {
+      clearInterval(loader._typingTimer);
+      loader._typingTimer = null;
+    }
+    loader.classList.add('is-finishing');
+    setTimeout(function() {
+      loader.classList.remove('active');
+      loader.classList.remove('is-finishing');
+    }, failed ? 450 : 280);
+  }
+
+  function finishGameLoader(id, failed) {
+    var loader = document.getElementById('game-loader_' + id);
+    if (!loader) return;
+    var elapsed = Date.now() - Number(loader.dataset.startedAt || Date.now());
+    var remaining = Math.max(0, GAME_LOADER_MIN_MS - elapsed);
+    loader.dataset.finishRequested = '1';
+    loader.dataset.failed = failed ? '1' : '0';
+
+    if (remaining > 0) {
+      setTimeout(function() {
+        var current = document.getElementById('game-loader_' + id);
+        if (!current || current.dataset.finishRequested !== '1') return;
+        reallyFinishGameLoader(id, current.dataset.failed === '1');
+      }, remaining);
+      return;
+    }
+    reallyFinishGameLoader(id, failed);
+  }
+
   function waitForUV(cb) {
     if (typeof __uv$config !== 'undefined') { cb(); return; }
     var t = 0;
@@ -109,16 +217,14 @@ var BrowserTabs = (function() {
       try {
         if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
           // Fallback: open bing directly if UV missing
-          var template = 'https://www.bing.com/search?q=%s';
-          var url = typeof search === 'function' ? search(raw, template) : raw;
+          var url = typeof searchWithDizzyEngine === 'function' ? searchWithDizzyEngine(raw) : raw;
           cb(url);
           return;
         }
-        var template = 'https://www.bing.com/search?q=%s';
-        var url = typeof search === 'function' ? search(raw, template) : raw;
+        var url = typeof searchWithDizzyEngine === 'function' ? searchWithDizzyEngine(raw) : raw;
         cb(__uv$config.prefix + __uv$config.encodeUrl(url));
       } catch (e) {
-        cb('https://www.bing.com/search?q=' + encodeURIComponent(raw));
+        cb('https://duckduckgo.com/?q=' + encodeURIComponent(raw));
       }
     }
     waitForUV(function() {
@@ -202,7 +308,8 @@ var BrowserTabs = (function() {
       '<\/script></body></html>';
   }
 
-  function openTab(url, tabTitle) {
+  function openTab(url, tabTitle, options) {
+    options = options || {};
     var isNewHome = false;
     if (!url) {
       isNewHome = true;
@@ -246,6 +353,9 @@ var BrowserTabs = (function() {
     frame.setAttribute('allow', 'autoplay; fullscreen; gamepad; clipboard-write');
     contentArea.appendChild(frame);
 
+    var gameLaunch = !!options.gameLaunch || isGameUrl(url);
+    var gameLoader = gameLaunch ? createGameLoader(id, initialTitle) : null;
+
     tabs.push({
       id: id,
       url: url,
@@ -254,7 +364,9 @@ var BrowserTabs = (function() {
       tabEl: tabEl,
       lockedTitle: lockTitle,
       isHome: !!isNewHome,
-      addressLabel: isNewHome ? 'New Tab' : null
+      addressLabel: isNewHome ? 'New Tab' : null,
+      gameLaunch: gameLaunch,
+      gameLoader: gameLoader
     });
     switchTab(id);
     tabEl.scrollIntoView({ behavior: 'smooth', inline: 'end' });
@@ -262,7 +374,7 @@ var BrowserTabs = (function() {
     // Only skip UV for real local pages / blob games — never for search queries
     function isLocalPage(u) {
       if (!u) return false;
-      if (/^(blob:|data:)/i.test(u)) return true;
+      if (/^(blob:|data:|about:blank)/i.test(u)) return true;
       if (u.indexOf('UGS-Files') !== -1) return true;
       if (isNewHome) return true;
       try {
@@ -283,6 +395,7 @@ var BrowserTabs = (function() {
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
+        if (gameLaunch) finishGameLoader(id, false);
         if (isNewHome) {
           updateTabTitle(id, 'New Tab');
           setTabFavicon(id, (function() {
@@ -293,7 +406,7 @@ var BrowserTabs = (function() {
           updateTabTitle(id, initialTitle);
         }
       });
-      return;
+      return { id: id, frameEl: frame, tabEl: tabEl, window: frame.contentWindow };
     }
 
     // Everything else goes through UV (search queries + external URLs)
@@ -303,10 +416,15 @@ var BrowserTabs = (function() {
       setTimeout(function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
-      }, 8000);
+        if (gameLaunch) {
+          var loader = document.getElementById('game-loader_' + id);
+          if (loader && loader.classList.contains('active')) finishGameLoader(id, true);
+        }
+      }, gameLaunch ? 30000 : 8000);
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
+        if (gameLaunch) finishGameLoader(id, false);
         var tab = null;
         for (var i = 0; i < tabs.length; i++) {
           if (tabs[i].id === id) { tab = tabs[i]; break; }
@@ -332,12 +450,24 @@ var BrowserTabs = (function() {
         }
       });
     });
+    return { id: id, frameEl: frame, tabEl: tabEl, window: frame.contentWindow };
+  }
+
+  function openBlankGameTab(title) {
+    var result = openTab('about:blank', title || 'Game', { gameLaunch: true, blankGame: true });
+    if (!result || !result.window) return result;
+    try {
+      // Make the synthetic popup behave like the popup UGS expects.
+      result.window.opener = window;
+    } catch (_) {}
+    return result.window;
   }
 
   function switchTab(id) {
     activeTab = id;
     homeFrame.classList.remove('active');
     document.querySelectorAll('.tab-frame').forEach(function(f) { f.classList.remove('active'); });
+    document.querySelectorAll('.tab-game-loader').forEach(function(l) { l.classList.remove('active'); });
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
 
     if (id === 'home') {
@@ -352,6 +482,9 @@ var BrowserTabs = (function() {
       if (!tab) return;
       tab.frameEl.classList.add('active');
       tab.tabEl.classList.add('active');
+      if (tab.gameLoader && tab.gameLoader.classList.contains('is-finishing') === false) {
+        tab.gameLoader.classList.add('active');
+      }
       updateAddressBar(id);
     }
     updateNavBtns();
@@ -389,6 +522,7 @@ var BrowserTabs = (function() {
     var tab = tabs[idx];
     tab.tabEl.remove();
     tab.frameEl.remove();
+    if (tab.gameLoader) tab.gameLoader.remove();
     tabs.splice(idx, 1);
     if (activeTab === id) {
       switchTab(tabs.length > 0 ? tabs[Math.max(0, idx-1)].id : 'home');
@@ -471,6 +605,14 @@ var BrowserTabs = (function() {
     if (tab) {
       var spin = document.getElementById('spin_' + tab.id);
       if (spin) spin.style.display = '';
+      if (tab.gameLaunch && tab.gameLoader) {
+        tab.gameLoader.classList.remove('is-finishing');
+        tab.gameLoader.classList.add('active');
+        tab.gameLoader.dataset.startedAt = String(Date.now());
+        tab.gameLoader.dataset.finishRequested = '0';
+        tab.gameLoader.dataset.failed = '0';
+        startGameLoaderTyping(tab.gameLoader);
+      }
       try { tab.frameEl.contentWindow.location.reload(); }
       catch(_) { tab.frameEl.src = tab.frameEl.src; }
     }
@@ -479,6 +621,7 @@ var BrowserTabs = (function() {
   return {
     init: init,
     openTab: openTab,
+    openBlankGameTab: openBlankGameTab,
     switchTab: switchTab,
     closeTab: closeTab,
     addressGo: addressGo,
