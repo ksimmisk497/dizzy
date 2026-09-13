@@ -1,50 +1,65 @@
 "use strict";
+var __dizzySWReady = null;
+
 async function registerSW() {
   if (location.protocol === "file:" || location.origin === "null") {
-    throw new Error(
-      "Open the GitHub Pages site (https://YOURUSER.github.io/REPO/), not the local file."
-    );
+    throw new Error("Open via GitHub Pages HTTPS, not a local file.");
   }
   if (!navigator.serviceWorker) {
-    throw new Error("Service workers require HTTPS (GitHub Pages).");
+    throw new Error("Service workers require HTTPS.");
   }
   if (typeof __uv$config === "undefined") return;
 
-  var scope = __uv$config.prefix;
-  var swUrl = new URL("uv.js", location.href).href;
+  // Reuse in-flight / completed registration
+  if (__dizzySWReady) return __dizzySWReady;
 
-  var regs = await navigator.serviceWorker.getRegistrations();
-  await Promise.all(regs.map(function (r) { return r.unregister(); }));
+  __dizzySWReady = (async function () {
+    var scope = __uv$config.prefix;
+    var swUrl = new URL("uv.js", location.href).href;
 
-  if (window.caches) {
-    try {
-      var keys = await caches.keys();
-      await Promise.all(keys.map(function (k) { return caches.delete(k); }));
-    } catch (_) {}
-  }
-
-  var reg = await navigator.serviceWorker.register(swUrl, {
-    scope: scope,
-    updateViaCache: "none"
-  });
-  try { await reg.update(); } catch (_) {}
-
-  await new Promise(function (resolve) {
-    if (reg.active && !reg.installing && !reg.waiting) {
-      resolve();
-      return;
+    var existing = await navigator.serviceWorker.getRegistration(scope);
+    var reg = existing;
+    if (!reg) {
+      reg = await navigator.serviceWorker.register(swUrl, {
+        scope: scope,
+        updateViaCache: "none"
+      });
     }
-    var sw = reg.installing || reg.waiting;
-    if (!sw) {
-      resolve();
-      return;
-    }
-    sw.addEventListener("statechange", function h() {
-      if (sw.state === "activated" || sw.state === "redundant") {
-        sw.removeEventListener("statechange", h);
+
+    // Wait until active (max 6s)
+    await new Promise(function (resolve) {
+      if (reg.active) { resolve(); return; }
+      var sw = reg.installing || reg.waiting;
+      if (!sw) { resolve(); return; }
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
         resolve();
       }
+      sw.addEventListener("statechange", function () {
+        if (sw.state === "activated" || sw.state === "redundant") finish();
+      });
+      setTimeout(finish, 6000);
     });
-    setTimeout(resolve, 5000);
-  });
+
+    // Ensure controller when possible (max 3s)
+    if (!navigator.serviceWorker.controller) {
+      await new Promise(function (resolve) {
+        var t = setTimeout(resolve, 3000);
+        navigator.serviceWorker.addEventListener("controllerchange", function once() {
+          navigator.serviceWorker.removeEventListener("controllerchange", once);
+          clearTimeout(t);
+          resolve();
+        });
+      });
+    }
+  })();
+
+  try {
+    await __dizzySWReady;
+  } catch (e) {
+    __dizzySWReady = null;
+    throw e;
+  }
 }

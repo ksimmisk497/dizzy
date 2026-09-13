@@ -48,6 +48,10 @@ var BrowserTabs = (function() {
     updateSpacer();
     window.addEventListener('resize', updateSpacer);
     updateNavBtns();
+    // Warm up service worker once (don't block UI)
+    if (typeof registerSW === 'function') {
+      registerSW().catch(function(){});
+    }
 
     // Hijack window.open so game.js and any other script can't spawn real browser tabs
     var _origOpen = window.open.bind(window);
@@ -101,17 +105,37 @@ var BrowserTabs = (function() {
   }
 
   function encodeURL(raw, cb) {
-    waitForUV(function() {
-      if (typeof registerSW === 'function') {
-        Promise.resolve().then(function() { return registerSW(); }).catch(function(){}).then(function() {
+    function finish() {
+      try {
+        if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
+          // Fallback: open duckduckgo directly if UV missing
           var template = 'https://duckduckgo.com/?q=%s';
           var url = typeof search === 'function' ? search(raw, template) : raw;
-          cb(__uv$config.prefix + __uv$config.encodeUrl(url));
-        });
-      } else {
+          cb(url);
+          return;
+        }
         var template = 'https://duckduckgo.com/?q=%s';
         var url = typeof search === 'function' ? search(raw, template) : raw;
         cb(__uv$config.prefix + __uv$config.encodeUrl(url));
+      } catch (e) {
+        cb('https://duckduckgo.com/?q=' + encodeURIComponent(raw));
+      }
+    }
+    waitForUV(function() {
+      if (typeof registerSW === 'function') {
+        var timedOut = false;
+        var to = setTimeout(function() { timedOut = true; finish(); }, 4000);
+        Promise.resolve()
+          .then(function() { return registerSW(); })
+          .catch(function() {})
+          .then(function() {
+            if (!timedOut) {
+              clearTimeout(to);
+              finish();
+            }
+          });
+      } else {
+        finish();
       }
     });
   }
@@ -276,6 +300,10 @@ var BrowserTabs = (function() {
 
     encodeURL(url, function(proxied) {
       frame.src = proxied;
+      setTimeout(function() {
+        var spin = document.getElementById('spin_' + id);
+        if (spin) spin.style.display = 'none';
+      }, 12000);
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';

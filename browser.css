@@ -681,3 +681,41 @@ html.nav-pending body {
 }
 /* Hide nav icons for cleaner pill */
 #page-nav .nav-ico { display: none !important; }
+
+/* Home/Games switcher sits in the tab bar, not over the URL bar */
+#tab-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+#page-nav {
+  position: static !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin-left: auto !important;
+  margin-right: 8px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  gap: 4px !important;
+  padding: 3px !important;
+  background: rgba(20, 20, 30, 0.9) !important;
+  border: 1px solid rgba(108, 124, 255, 0.2) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  width: auto !important;
+  z-index: 1 !important;
+}
+#page-nav a {
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+}
+#page-nav .nav-ico { display: none !important; }
+#address-bar-row {
+  position: relative !important;
+  z-index: 2 !important;
+}
