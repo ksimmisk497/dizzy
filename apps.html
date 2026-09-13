@@ -94,30 +94,39 @@
   <script src="register-sw.js" defer></script>
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
+  <script>
+    // Warm UV as soon as config exists
+    (function warm() {
+      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
+        return setTimeout(warm, 50);
+      }
+      registerSW().catch(function(){});
+    })();
+  </script>
   <script defer>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Apps' });
       var apps = [
-        ['YouTube', 'https://youtube.com', 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64'],
-        ['TikTok', 'https://tiktok.com', 'https://www.google.com/s2/favicons?domain=tiktok.com&sz=64'],
-        ['Discord', 'https://discord.com', 'https://www.google.com/s2/favicons?domain=discord.com&sz=64'],
-        ['Spotify', 'https://spotify.com', 'https://www.google.com/s2/favicons?domain=spotify.com&sz=64'],
-        ['Roblox', 'https://roblox.com', 'https://www.google.com/s2/favicons?domain=roblox.com&sz=64'],
-        ['Reddit', 'https://reddit.com', 'https://www.google.com/s2/favicons?domain=reddit.com&sz=64'],
-        ['Twitch', 'https://twitch.tv', 'https://www.google.com/s2/favicons?domain=twitch.tv&sz=64'],
+        ['YouTube', 'https://www.youtube.com', 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64'],
+        ['TikTok', 'https://www.tiktok.com', 'https://www.google.com/s2/favicons?domain=tiktok.com&sz=64'],
+        ['Discord', 'https://discord.com/app', 'https://www.google.com/s2/favicons?domain=discord.com&sz=64'],
+        ['Reddit', 'https://www.reddit.com', 'https://www.google.com/s2/favicons?domain=reddit.com&sz=64'],
+        ['Twitch', 'https://www.twitch.tv', 'https://www.google.com/s2/favicons?domain=twitch.tv&sz=64'],
         ['GitHub', 'https://github.com', 'https://www.google.com/s2/favicons?domain=github.com&sz=64'],
-        ['Google', 'https://google.com', 'https://www.google.com/s2/favicons?domain=google.com&sz=64'],
-        ['Gmail', 'https://mail.google.com', 'https://www.google.com/s2/favicons?domain=mail.google.com&sz=64'],
-        ['Classroom', 'https://classroom.google.com', 'https://www.google.com/s2/favicons?domain=classroom.google.com&sz=64'],
-        ['Drive', 'https://drive.google.com', 'https://www.google.com/s2/favicons?domain=drive.google.com&sz=64'],
-        ['Docs', 'https://docs.google.com', 'https://www.google.com/s2/favicons?domain=docs.google.com&sz=64'],
-        ['ChatGPT', 'https://chatgpt.com', 'https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64'],
         ['X', 'https://x.com', 'https://www.google.com/s2/favicons?domain=x.com&sz=64'],
-        ['Instagram', 'https://instagram.com', 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64'],
-        ['Netflix', 'https://netflix.com', 'https://www.google.com/s2/favicons?domain=netflix.com&sz=64'],
-        ['Pinterest', 'https://pinterest.com', 'https://www.google.com/s2/favicons?domain=pinterest.com&sz=64'],
-        ['Amazon', 'https://amazon.com', 'https://www.google.com/s2/favicons?domain=amazon.com&sz=64'],
-        ['Wikipedia', 'https://wikipedia.org', 'https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64']
+        ['Instagram', 'https://www.instagram.com', 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64'],
+        ['Pinterest', 'https://www.pinterest.com', 'https://www.google.com/s2/favicons?domain=pinterest.com&sz=64'],
+        ['Wikipedia', 'https://www.wikipedia.org', 'https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64'],
+        ['SoundCloud', 'https://soundcloud.com', 'https://www.google.com/s2/favicons?domain=soundcloud.com&sz=64'],
+        ['Replit', 'https://replit.com', 'https://www.google.com/s2/favicons?domain=replit.com&sz=64'],
+        ['CodePen', 'https://codepen.io', 'https://www.google.com/s2/favicons?domain=codepen.io&sz=64'],
+        ['Archive', 'https://archive.org', 'https://www.google.com/s2/favicons?domain=archive.org&sz=64'],
+        ['Bing', 'https://www.bing.com', 'https://www.google.com/s2/favicons?domain=bing.com&sz=64'],
+        ['Yahoo', 'https://www.yahoo.com', 'https://www.google.com/s2/favicons?domain=yahoo.com&sz=64'],
+        ['Cracked', 'https://www.crazygames.com', 'https://www.google.com/s2/favicons?domain=crazygames.com&sz=64'],
+        ['Now.gg', 'https://now.gg', 'https://www.google.com/s2/favicons?domain=now.gg&sz=64'],
+        ['Photopea', 'https://www.photopea.com', 'https://www.google.com/s2/favicons?domain=photopea.com&sz=64'],
+        ['Desmos', 'https://www.desmos.com/calculator', 'https://www.google.com/s2/favicons?domain=desmos.com&sz=64']
       ];
       var grid = document.getElementById('apps-grid');
       apps.forEach(function (a) {

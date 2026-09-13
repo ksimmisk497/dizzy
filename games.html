@@ -6,6 +6,7 @@
   <title>Dizzy</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://spring-lab-521b.ksimmisk497.workers.dev" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
@@ -170,6 +171,15 @@
   <script src="register-sw.js" defer></script>
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
+  <script>
+    // Warm UV as soon as config exists
+    (function warm() {
+      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
+        return setTimeout(warm, 50);
+      }
+      registerSW().catch(function(){});
+    })();
+  </script>
   
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {

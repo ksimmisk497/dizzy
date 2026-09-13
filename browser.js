@@ -124,7 +124,7 @@ var BrowserTabs = (function() {
     waitForUV(function() {
       if (typeof registerSW === 'function') {
         var timedOut = false;
-        var to = setTimeout(function() { timedOut = true; finish(); }, 4000);
+        var to = setTimeout(function() { timedOut = true; finish(); }, 1200);
         Promise.resolve()
           .then(function() { return registerSW(); })
           .catch(function() {})
@@ -303,7 +303,7 @@ var BrowserTabs = (function() {
       setTimeout(function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
-      }, 12000);
+      }, 8000);
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';

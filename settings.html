@@ -155,6 +155,15 @@
   <script src="register-sw.js" defer></script>
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
+  <script>
+    // Warm UV as soon as config exists
+    (function warm() {
+      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
+        return setTimeout(warm, 50);
+      }
+      registerSW().catch(function(){});
+    })();
+  </script>
   <script defer>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Settings' });
