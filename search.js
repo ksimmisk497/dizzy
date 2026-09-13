@@ -5,24 +5,11 @@
  * @returns {string} Fully qualified URL
  */
 function getDizzySearchEngine() {
-  try {
-    var saved = localStorage.getItem('dizzy_search_engine');
-    if (saved) return saved;
-  } catch (e) {}
-  return 'dizzy';
+  return 'duckduckgo';
 }
 
 function getDizzySearchTemplate() {
-  var engines = {
-    // Dizzy uses DuckDuckGo's search endpoint as its backend, while the
-    // surrounding UI remains fully branded as DIZZY.
-    dizzy: 'https://duckduckgo.com/?q=%s',
-    duckduckgo: 'https://duckduckgo.com/?q=%s',
-    google: 'https://www.google.com/search?q=%s',
-    bing: 'https://www.bing.com/search?q=%s',
-    yahoo: 'https://search.yahoo.com/search?p=%s'
-  };
-  return engines[getDizzySearchEngine()] || engines.dizzy;
+  return 'https://duckduckgo.com/?q=%s';
 }
 
 function searchWithDizzyEngine(input) {

@@ -129,37 +129,15 @@
       <div id="settings-inner">
         <div class="s-card browser-card">
           <div class="browser-card-head">
-            <div>
-              <h3>Search browser</h3>
-            </div>
-            <span class="browser-current" id="browser-current">Dizzy</span>
+            <div><h3>Search browser</h3></div>
+            <span class="browser-current">DuckDuckGo</span>
           </div>
-          <div class="browser-list" id="browser-list">
-            <button class="browser-option dizzy-option" data-engine="dizzy" type="button">
-              <span class="browser-icon dizzy-icon"><img src="favicon.png" alt="Dizzy" class="engine-logo"></span>
-              <span class="browser-option-copy"><strong>Dizzy</strong></span>
-              <span class="browser-check">✓</span>
-            </button>
-            <button class="browser-option" data-engine="duckduckgo" type="button">
+          <div class="browser-list">
+            <div class="browser-option selected" aria-pressed="true">
               <span class="browser-icon"><img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo" class="engine-logo"></span>
               <span class="browser-option-copy"><strong>DuckDuckGo</strong></span>
               <span class="browser-check">✓</span>
-            </button>
-            <button class="browser-option" data-engine="google" type="button">
-              <span class="browser-icon"><img src="https://www.google.com/favicon.ico" alt="Google" class="engine-logo"></span>
-              <span class="browser-option-copy"><strong>Google</strong></span>
-              <span class="browser-check">✓</span>
-            </button>
-            <button class="browser-option" data-engine="bing" type="button">
-              <span class="browser-icon"><img src="https://www.bing.com/favicon.ico" alt="Bing" class="engine-logo"></span>
-              <span class="browser-option-copy"><strong>Bing</strong></span>
-              <span class="browser-check">✓</span>
-            </button>
-            <button class="browser-option" data-engine="yahoo" type="button">
-              <span class="browser-icon"><img src="https://search.yahoo.com/favicon.ico" alt="Yahoo" class="engine-logo"></span>
-              <span class="browser-option-copy"><strong>Yahoo</strong></span>
-              <span class="browser-check">✓</span>
-            </button>
+            </div>
           </div>
         </div>
 
@@ -223,34 +201,7 @@
     })();
   </script>
   <script defer>
-    function setupBrowserPicker() {
-      var key = 'dizzy_search_engine';
-      var names = { duckduckgo:'DuckDuckGo', google:'Google', bing:'Bing', yahoo:'Yahoo', dizzy:'Dizzy' };
-      var current = 'dizzy';
-      try { current = localStorage.getItem(key) || 'dizzy'; } catch (e) {}
-      if (!names[current]) current = 'dizzy';
-      var currentEl = document.getElementById('browser-current');
-      var options = document.querySelectorAll('.browser-option');
-      function render() {
-        options.forEach(function (btn) {
-          var selected = btn.getAttribute('data-engine') === current;
-          btn.classList.toggle('selected', selected);
-          btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
-        });
-        if (currentEl) currentEl.textContent = names[current];
-      }
-      options.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          current = btn.getAttribute('data-engine') || 'dizzy';
-          try { localStorage.setItem(key, current); } catch (e) {}
-          render();
-        });
-      });
-      render();
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
-      setupBrowserPicker();
       if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Settings' });
       var presets = {
         classroom: { title: 'Home', favicon: 'https://ssl.gstatic.com/classroom/favicon.png' },

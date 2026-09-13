@@ -249,84 +249,13 @@ var BrowserTabs = (function() {
 
   function isDizzySearchUrl(url) {
     try {
-      if (typeof getDizzySearchEngine !== 'function' || getDizzySearchEngine() !== 'dizzy') return false;
       var u = new URL(url, location.href);
       return /(^|\.)duckduckgo\.com$/i.test(u.hostname) && /[?&]q=/i.test(u.search || '');
     } catch (e) { return false; }
   }
 
   function decorateDizzySearch(frame, id, originalUrl) {
-    if (!frame || !isDizzySearchUrl(originalUrl)) return;
-    var attempts = 0;
-
-    function apply() {
-      attempts++;
-      try {
-        var doc = frame.contentDocument || frame.contentWindow.document;
-        if (!doc || !doc.documentElement || !doc.body) return false;
-
-        if (!doc.getElementById('__dizzy_search_brand')) {
-          var style = doc.createElement('style');
-          style.id = '__dizzy_search_brand';
-          style.textContent = `
-            html, body { background:#08070d !important; color:#f7f5ff !important; }
-            body { margin:0 !important; padding-top:86px !important; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important; }
-            #__dizzy_search_brand { all:initial; }
-            #__dizzy_search_brand_bar { position:fixed; top:0; left:0; right:0; height:74px; z-index:2147483647; display:flex; align-items:center; gap:16px; padding:0 24px; background:rgba(8,7,13,.94); border-bottom:1px solid rgba(139,124,247,.18); box-shadow:0 10px 35px rgba(0,0,0,.35); backdrop-filter:blur(18px); }
-            #__dizzy_search_brand_bar img { width:42px; height:42px; object-fit:contain; border-radius:12px; filter:drop-shadow(0 0 12px rgba(139,124,247,.55)); }
-            #__dizzy_search_brand_bar .dizzy-name { color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; }
-            #__dizzy_search_brand_bar form { flex:1; max-width:720px; margin:0 auto; }
-            #__dizzy_search_brand_bar input { width:100%; height:42px; box-sizing:border-box; border:1px solid rgba(139,124,247,.28); border-radius:12px; outline:none; padding:0 16px; background:rgba(22,19,32,.92); color:#fff; font:500 14px/1 Inter,system-ui,sans-serif; box-shadow:0 0 0 1px rgba(139,124,247,.05),0 0 28px rgba(100,70,180,.12); }
-            #__dizzy_search_brand_bar input:focus { border-color:rgba(167,139,250,.7); box-shadow:0 0 0 3px rgba(139,124,247,.13),0 0 34px rgba(100,70,180,.22); }
-            #__dizzy_search_brand_bar button { height:42px; padding:0 16px; border:1px solid rgba(139,124,247,.28); border-radius:12px; background:linear-gradient(135deg,rgba(108,76,210,.42),rgba(74,51,150,.28)); color:#fff; font:700 13px/1 Inter,system-ui,sans-serif; cursor:pointer; }
-            #__dizzy_search_brand_bar button:hover { border-color:rgba(167,139,250,.7); transform:translateY(-1px); }
-            a { color:#a99aff !important; }
-            a:hover { color:#c7bdff !important; }
-            input, textarea, select { background:#14121c !important; color:#fff !important; border-color:#30294a !important; }
-            header, nav { background:transparent !important; }
-            [class*="header"], [class*="Header"] { background:transparent !important; }
-            ::-webkit-scrollbar { width:10px; height:10px; }
-            ::-webkit-scrollbar-track { background:#08070d; }
-            ::-webkit-scrollbar-thumb { background:#2c2540; border-radius:10px; }
-            ::-webkit-scrollbar-thumb:hover { background:#44366a; }
-            @media(max-width:650px){ #__dizzy_search_brand_bar{padding:0 12px;gap:10px} #__dizzy_search_brand_bar .dizzy-name{display:none} #__dizzy_search_brand_bar button{display:none} body{padding-top:74px !important} }
-          `;
-          doc.head.appendChild(style);
-
-          var bar = doc.createElement('div');
-          bar.id = '__dizzy_search_brand_bar';
-          bar.innerHTML = '<img src="' + new URL('favicon.png', location.href).href.replace(/"/g, '&quot;') + '" alt="Dizzy"><span class="dizzy-name">Dizzy</span><form><input type="search" autocomplete="off" placeholder="Search Dizzy"><button type="submit">Search</button></form>';
-          doc.body.prepend(bar);
-
-          var input = bar.querySelector('input');
-          var form = bar.querySelector('form');
-          var q = '';
-          try { q = new URL(originalUrl, location.href).searchParams.get('q') || ''; } catch (e) {}
-          input.value = q;
-          form.addEventListener('submit', function(ev) {
-            ev.preventDefault();
-            var value = input.value.trim();
-            if (!value) return;
-            try { frame.contentWindow.location.href = __uv$config.prefix + __uv$config.encodeUrl('https://duckduckgo.com/?q=' + encodeURIComponent(value)); }
-            catch (e) { frame.contentWindow.location.href = 'https://duckduckgo.com/?q=' + encodeURIComponent(value); }
-          });
-        }
-
-        doc.title = 'Dizzy';
-        var existing = doc.querySelectorAll('link[rel*="icon"]');
-        existing.forEach(function(link) { link.remove(); });
-        var icon = doc.createElement('link');
-        icon.rel = 'icon';
-        icon.href = new URL('favicon.png', location.href).href;
-        doc.head.appendChild(icon);
-        return true;
-      } catch (e) { return false; }
-    }
-
-    if (apply()) return;
-    var timer = setInterval(function() {
-      if (apply() || attempts >= 20) clearInterval(timer);
-    }, 250);
+    return;
   }
 
   function isHomeUrl(url) {
@@ -517,7 +446,6 @@ var BrowserTabs = (function() {
         }
         if (tab && tab.dizzySearch) {
           decorateDizzySearch(frame, id, tab.url);
-          updateTabTitle(id, 'Dizzy');
           setTabFavicon(id, (function() { try { return new URL('favicon.png', location.href).href; } catch (e) { return 'favicon.png'; } })());
           return;
         }
