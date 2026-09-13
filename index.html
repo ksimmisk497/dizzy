@@ -285,7 +285,8 @@
       var raw = document.getElementById('home-search').value.trim();
       if (!raw) return;
       document.getElementById('home-search').value = '';
-      BrowserTabs.openTab(raw);
+      if (window.BrowserTabs) BrowserTabs.openTab(raw);
+      else location.href = raw;
     }
   </script>
 

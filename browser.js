@@ -235,10 +235,26 @@ var BrowserTabs = (function() {
     switchTab(id);
     tabEl.scrollIntoView({ behavior: 'smooth', inline: 'end' });
 
-    // Same-origin / embed home / blob: load directly (no UV)
-    var sameOrigin = false;
-    try { sameOrigin = new URL(url, location.href).origin === location.origin; } catch (e) {}
-    if (isNewHome || sameOrigin || /^(blob:|data:)/i.test(url) || url.indexOf('UGS-Files') !== -1) {
+    // Only skip UV for real local pages / blob games — never for search queries
+    function isLocalPage(u) {
+      if (!u) return false;
+      if (/^(blob:|data:)/i.test(u)) return true;
+      if (u.indexOf('UGS-Files') !== -1) return true;
+      if (isNewHome) return true;
+      try {
+        var parsed = new URL(u, location.href);
+        if (parsed.origin !== location.origin) return false;
+        var leaf = (parsed.pathname || '').split('/').pop() || '';
+        // only our actual files
+        if (/^(index|games|404)\.html$/i.test(leaf)) return true;
+        if (leaf === '' && /embed=1/i.test(parsed.search || '')) return true;
+        return false;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    if (isLocalPage(url)) {
       frame.src = url;
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
@@ -255,6 +271,8 @@ var BrowserTabs = (function() {
       });
       return;
     }
+
+    // Everything else goes through UV (search queries + external URLs)
 
     encodeURL(url, function(proxied) {
       frame.src = proxied;
@@ -369,20 +387,23 @@ var BrowserTabs = (function() {
 
   function addressGo() {
     var raw = addressInput.value.trim();
-    if (!raw || raw === homeLabel) return;
-    if (activeTab === 'home') {
+    if (!raw || raw === homeLabel || raw === 'New Tab') return;
+    // Always open navigations through UV in a tab
+    var tab = tabs.find(function(t) { return t.id === activeTab; });
+    if (activeTab === 'home' || !tab || tab.isHome) {
       openTab(raw);
-    } else {
-      var tab = tabs.find(function(t) { return t.id === activeTab; });
-      if (!tab) { openTab(raw); return; }
-      encodeURL(raw, function(proxied) {
-        tab.frameEl.src = proxied;
-        tab.url = raw;
-        var spin = document.getElementById('spin_' + tab.id);
-        if (spin) spin.style.display = '';
-        updateTabTitle(tab.id, 'Loading\u2026');
-      });
+      return;
     }
+    encodeURL(raw, function(proxied) {
+      tab.frameEl.src = proxied;
+      tab.url = raw;
+      tab.isHome = false;
+      tab.addressLabel = null;
+      var spin = document.getElementById('spin_' + tab.id);
+      if (spin) spin.style.display = '';
+      updateTabTitle(tab.id, 'Loading…');
+      updateAddressBar(tab.id);
+    });
   }
 
   function addressFocus() {

@@ -634,3 +634,50 @@ html.nav-pending body {
 .c {
   transition: transform .2s ease, border-color .2s, box-shadow .25s !important;
 }
+
+
+/* Nav switcher — floating pill bottom-center */
+#page-nav {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: 28px !important;
+  transform: translateX(-50%) !important;
+  z-index: 2000 !important;
+  display: flex !important;
+  gap: 4px !important;
+  padding: 5px !important;
+  background: rgba(16, 16, 24, 0.88) !important;
+  border: 1px solid rgba(108, 124, 255, 0.22) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 20px rgba(108,124,255,0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+#page-nav a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  color: #9a9aac !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  transition: color .2s, background .2s, box-shadow .2s !important;
+}
+#page-nav a:hover {
+  color: #fff !important;
+  background: rgba(108,124,255,0.12) !important;
+}
+#page-nav a.active {
+  color: #fff !important;
+  background: rgba(108,124,255,0.22) !important;
+  box-shadow: 0 0 0 1px rgba(108,124,255,0.3), 0 0 16px rgba(108,124,255,0.2) !important;
+}
+/* Hide nav icons for cleaner pill */
+#page-nav .nav-ico { display: none !important; }
