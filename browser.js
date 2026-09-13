@@ -303,7 +303,9 @@ var BrowserTabs = (function() {
       '.c img{width:60%;height:60%;object-fit:contain}' +
       '</style></head><body>' +
       '<img id="logo" src="' + logo + '" alt="Dizzy">' +
-      '<input id="search" type="text" placeholder="Search or enter a URL" autocomplete="off">' +
+      '<input id="search" type="text" placeholder="" autocomplete="off">' +
+      '<script>var DIZZY_TYPING_MESSAGES=["Search something...","What are you looking for?","Find a game...","Explore something new...","Ready when you are..."];' +
+      '(function(){var i=document.getElementById("search"),m=DIZZY_TYPING_MESSAGES,n=0,c=0,d=0,t;if(!i||!m.length)return;function x(){var s=m[n];if(!d){c=Math.min(c+1,s.length);i.placeholder=s.slice(0,c)+(c<s.length?"|":"");if(c>=s.length){t=setTimeout(function(){d=1;x()},1700);return}}else{c=Math.max(c-1,0);i.placeholder=s.slice(0,c)+(c?"|":"");if(!c){d=0;n=(n+1)%m.length}}t=setTimeout(x,d?38:65)}i.onfocus=function(){clearTimeout(t);i.placeholder=""};i.onblur=function(){if(!i.value){clearTimeout(t);t=setTimeout(x,250)}};x()})()' +
       '<div id="quick">' +
       '<button class="q" data-url="https://tiktok.com"><div class="c"><img src="' + tiktok + '"></div>TikTok</button>' +
       '<button class="q" data-url="https://discord.com"><div class="c"><img src="' + discord + '"></div>Discord</button>' +

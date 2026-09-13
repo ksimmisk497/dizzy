@@ -240,7 +240,7 @@
       <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
       <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
       <button class="nav-btn" id="btn-reload"  onclick="BrowserTabs.tabReload()"  title="Reload">&#8635;</button>
-      <input id="address-input" class="home-tab" type="text" placeholder="Search or enter URL"
+      <input id="address-input" class="home-tab" type="text" placeholder=""
              value="New Tab" autocomplete="off"
              onfocus="BrowserTabs.addressFocus()"
              onblur="BrowserTabs.addressBlur()"
@@ -256,7 +256,7 @@
       <div id="home-inner">
         <img id="home-logo" src="obsidianlogo.png" alt="Dizzy" onerror="this.src='logo.gif'">
         <form id="home-form" onsubmit="homeSearch(event)">
-          <input id="home-search" type="text" placeholder="Search or enter a URL" autocomplete="off">
+          <input id="home-search" type="text" placeholder="" autocomplete="off">
         </form>
         <div id="home-error"></div>
         <div id="quick-links">
@@ -389,14 +389,66 @@
   </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var input = document.getElementById('home-search');
-      if (!input) return;
-      var names = { duckduckgo:'DuckDuckGo', google:'Google', bing:'Bing', yahoo:'Yahoo', dizzy:'Dizzy' };
-      var engine = 'dizzy';
-      try { engine = localStorage.getItem('dizzy_search_engine') || 'dizzy'; } catch (e) {}
-      input.placeholder = (names[engine] || 'Dizzy') + ' or enter a URL';
-    });
+    /* ═══════════════════════════════════════════════════════════════════════
+       DIZZY TYPING MESSAGES
+       Change/add messages here. These are shown in the search boxes.
+       Example: 'Find something cool...', 'Search for a game...', etc.
+       ═══════════════════════════════════════════════════════════════════════ */
+    window.DIZZY_TYPING_MESSAGES = [
+      'Search something...',
+      'What are you looking for?',
+      'Find a game...',
+      'Explore something new...',
+      'Ready when you are...'
+    ];
+
+    (function () {
+      var messages = window.DIZZY_TYPING_MESSAGES || [];
+      if (!messages.length) return;
+
+      function attachTyping(input) {
+        if (!input || input.dataset.dizzyTyping === '1') return;
+        input.dataset.dizzyTyping = '1';
+        var messageIndex = 0, charIndex = 0, deleting = false, timer = null;
+
+        function tick() {
+          var text = String(messages[messageIndex] || 'Search something...');
+          if (!deleting) {
+            charIndex = Math.min(charIndex + 1, text.length);
+            input.placeholder = text.slice(0, charIndex) + (charIndex < text.length ? '|' : '');
+            if (charIndex >= text.length) {
+              timer = setTimeout(function () { deleting = true; tick(); }, 1700);
+              return;
+            }
+          } else {
+            charIndex = Math.max(charIndex - 1, 0);
+            input.placeholder = text.slice(0, charIndex) + (charIndex > 0 ? '|' : '');
+            if (charIndex <= 0) {
+              deleting = false;
+              messageIndex = (messageIndex + 1) % messages.length;
+            }
+          }
+          timer = setTimeout(tick, deleting ? 38 : 65);
+        }
+
+        input.addEventListener('focus', function () {
+          if (timer) clearTimeout(timer);
+          input.placeholder = '';
+        });
+        input.addEventListener('blur', function () {
+          if (!input.value) {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(tick, 250);
+          }
+        });
+        tick();
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        attachTyping(document.getElementById('home-search'));
+        attachTyping(document.getElementById('address-input'));
+      });
+    })();
   </script>
 
   <div id="site-footer">made by wes</div>
