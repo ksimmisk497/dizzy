@@ -85,79 +85,7 @@
       pointer-events: none;
     }
     #tab-content-area { bottom: 32px !important; }
-
-    /* PPFN-style game tiles */
-    #sections-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 8px 16px 40px;
-    }
-    .letter-section { margin-bottom: 22px; }
-    .letter-header {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #8b8ba0;
-      margin: 8px 4px 12px;
-      text-transform: uppercase;
-    }
-    .buttons-grid {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
-      gap: 12px !important;
-    }
-    .buttons-grid input[type="button"] { display: none !important; }
-    .game-tile {
-      background: rgba(20, 20, 28, 0.92);
-      border: 1px solid #2a2a35;
-      border-radius: 14px;
-      padding: 10px 8px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .15s, transform .15s, box-shadow .15s;
-      color: #e0e0ef;
-      font-family: inherit;
-      width: 100%;
-    }
-    .game-tile:hover {
-      border-color: rgba(108,124,255,0.55);
-      transform: translateY(-2px);
-      box-shadow: 0 0 0 2px rgba(108,124,255,0.12), 0 8px 20px rgba(0,0,0,0.35);
-    }
-    .game-tile .game-logo-img {
-      width: 72px;
-      height: 72px;
-      border-radius: 14px;
-      object-fit: cover;
-      display: block;
-      margin: 0 auto 8px;
-      background: #12121a;
-    }
-    .game-tile .game-logo {
-      width: 72px;
-      height: 72px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 22px;
-      color: #fff;
-      margin: 0 auto 8px;
-      letter-spacing: 0.5px;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.35);
-    }
-    .game-tile .game-title {
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.25;
-      max-height: 2.5em;
-      overflow: hidden;
-      color: #c8c8d8;
-    }
-    .game-tile:hover .game-title { color: #fff; }
-
-  </style>
+</style>
 
   <script>
     (function () {
@@ -305,72 +233,19 @@
         byLetter[L].sort(function (a, b) {
           return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         }).forEach(function (g) {
-          var tile = document.createElement('button');
-          tile.type = 'button';
-          tile.className = 'game-tile';
-          tile.title = g.title;
-          var logo = document.createElement('img');
-          logo.className = 'game-logo-img';
-          logo.alt = g.title;
-          logo.loading = 'lazy';
-          var svgUri = makeLogoDataUri(g.title || g.file);
-          logo.src = (g.logo || g.imgSrc || svgUri);
-          logo.onerror = function () { this.onerror = null; this.src = svgUri; };
-          // always prefer generated so every tile has a visible logo
-          logo.src = svgUri;
-          var title = document.createElement('div');
-          title.className = 'game-title';
-          title.textContent = g.title;
-          tile.appendChild(logo);
-          tile.appendChild(title);
-          tile.addEventListener('click', function (e) {
+          var btn = document.createElement('input');
+          btn.type = 'button';
+          btn.value = g.title;
+          btn.dataset.file = g.file;
+          btn.addEventListener('click', function (e) {
             e.preventDefault();
             openLocalGame(g.file, g.title);
           });
-          grid.appendChild(tile);
+          grid.appendChild(btn);
         });
         sec.appendChild(grid);
         container.appendChild(sec);
       });
-    }
-
-    
-    function makeLogoDataUri(title) {
-      var ini = logoInitials(title);
-      var s = String(title || '');
-      var hash = 0;
-      for (var i = 0; i < s.length; i++) hash = ((hash << 5) - hash) + s.charCodeAt(i);
-      hash = Math.abs(hash);
-      var hues = [250, 265, 280, 210, 195, 320, 230, 290, 175, 300];
-      var h = hues[hash % hues.length];
-      var l = 38 + (hash % 18);
-      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">' +
-        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
-        '<stop offset="0%" stop-color="hsl(' + h + ',70%,' + (l + 10) + '%)"/>' +
-        '<stop offset="100%" stop-color="hsl(' + ((h + 28) % 360) + ',65%,' + l + '%)"/>' +
-        '</linearGradient></defs>' +
-        '<rect width="128" height="128" rx="28" fill="url(#g)"/>' +
-        '<text x="64" y="76" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="700" fill="#fff">' +
-        ini.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</text></svg>';
-      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    }
-
-    function logoInitials(title) {
-      var parts = String(title || '?').trim().split(/\s+/).filter(Boolean);
-      if (!parts.length) return '?';
-      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-    }
-
-    function logoColor(title) {
-      var s = String(title || '');
-      var hash = 0;
-      for (var i = 0; i < s.length; i++) hash = ((hash << 5) - hash) + s.charCodeAt(i);
-      hash = Math.abs(hash);
-      var hues = [250, 265, 280, 210, 195, 320, 230, 290];
-      var h = hues[hash % hues.length];
-      var l = 38 + (hash % 18);
-      return 'linear-gradient(145deg, hsl(' + h + ' 70% ' + (l + 8) + '%), hsl(' + ((h + 25) % 360) + ' 65% ' + l + '%))';
     }
 
     function boot() {
