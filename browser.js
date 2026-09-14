@@ -264,6 +264,7 @@ var BrowserTabs = (function() {
 
     // Only skip UV for real local pages / blob games — never for search queries
     function isLocalPage(u) {
+      if (u && (String(u).indexOf('vendor/games/') !== -1 || String(u).indexOf('/vendor/games/') !== -1)) return true;
       if (!u) return false;
       if (/^(blob:|data:)/i.test(u)) return true;
       if (u.indexOf('UGS-Files') !== -1) return true;

@@ -133,7 +133,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'app-card';
-        b.innerHTML = '<img class="app-icon" src="' + a[2] + '" alt="" loading="lazy" onerror="this.style.opacity=0.3">' + a[0];
+        b.innerHTML = '<div class="app-icon-fallback">' + a[0].charAt(0) + '</div>' + a[0];
         b.onclick = function () {
           if (window.BrowserTabs) BrowserTabs.openTab(a[1], a[0]);
         };

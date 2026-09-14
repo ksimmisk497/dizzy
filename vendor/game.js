@@ -3025,16 +3025,13 @@ function generateAllSections() {
           }
           const encoded = encodeURIComponent(normalized);
           const bases = [
-            "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/",
-            "https://cdn.statically.io/gh/bubbls/ugs-singlefile/main/UGS-Files/",
-            "https://raw.githack.com/bubbls/ugs-singlefile/main/UGS-Files/",
-            "https://gitmirror.com/cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/"
+            "vendor/games/"
           ];
           (async function () {
             let text = null;
             for (const base of bases) {
               try {
-                const response = await fetch(base + encoded + "?t=" + Date.now());
+                const response = await fetch(base + encodeURI(normalized));
                 if (response.ok) {
                   text = await response.text();
                   if (text && text.length > 50) break;
