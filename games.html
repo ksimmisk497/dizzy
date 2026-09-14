@@ -124,6 +124,15 @@
       transform: translateY(-2px);
       box-shadow: 0 0 0 2px rgba(108,124,255,0.12), 0 8px 20px rgba(0,0,0,0.35);
     }
+    .game-tile .game-logo-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 8px;
+      background: #12121a;
+    }
     .game-tile .game-logo {
       width: 72px;
       height: 72px;
@@ -300,10 +309,15 @@
           tile.type = 'button';
           tile.className = 'game-tile';
           tile.title = g.title;
-          var logo = document.createElement('div');
-          logo.className = 'game-logo';
-          logo.style.background = logoColor(g.title || g.file);
-          logo.textContent = logoInitials(g.title || g.file);
+          var logo = document.createElement('img');
+          logo.className = 'game-logo-img';
+          logo.alt = g.title;
+          logo.loading = 'lazy';
+          var svgUri = makeLogoDataUri(g.title || g.file);
+          logo.src = (g.logo || g.imgSrc || svgUri);
+          logo.onerror = function () { this.onerror = null; this.src = svgUri; };
+          // always prefer generated so every tile has a visible logo
+          logo.src = svgUri;
           var title = document.createElement('div');
           title.className = 'game-title';
           title.textContent = g.title;
@@ -318,6 +332,27 @@
         sec.appendChild(grid);
         container.appendChild(sec);
       });
+    }
+
+    
+    function makeLogoDataUri(title) {
+      var ini = logoInitials(title);
+      var s = String(title || '');
+      var hash = 0;
+      for (var i = 0; i < s.length; i++) hash = ((hash << 5) - hash) + s.charCodeAt(i);
+      hash = Math.abs(hash);
+      var hues = [250, 265, 280, 210, 195, 320, 230, 290, 175, 300];
+      var h = hues[hash % hues.length];
+      var l = 38 + (hash % 18);
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">' +
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="hsl(' + h + ',70%,' + (l + 10) + '%)"/>' +
+        '<stop offset="100%" stop-color="hsl(' + ((h + 28) % 360) + ',65%,' + l + '%)"/>' +
+        '</linearGradient></defs>' +
+        '<rect width="128" height="128" rx="28" fill="url(#g)"/>' +
+        '<text x="64" y="76" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="700" fill="#fff">' +
+        ini.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</text></svg>';
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
     function logoInitials(title) {
