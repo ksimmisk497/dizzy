@@ -28,7 +28,7 @@ async function registerSW() {
             if (sw.state === "activated" || sw.state === "redundant") resolve();
           });
         }),
-        new Promise(function (r) { setTimeout(r, 1500); })
+        new Promise(function (r) { setTimeout(r, 400); })
       ]);
     }
   })();
