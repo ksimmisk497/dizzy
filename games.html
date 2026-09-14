@@ -2,19 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Dizzy</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://spring-lab-521b.ksimmisk497.workers.dev" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-  <link rel="preload" href="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js" as="script">
-  <link rel="preload" href="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js" as="script">
   <link rel="preload" href="uv/uv.bundle.js" as="script">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/local.css">
   <link rel="stylesheet" href="browser.css">
   <script src="cloak.js"></script>
   <style>
@@ -74,42 +68,6 @@
     input[type="button"]:active { background: #252535; }
 
     .letter-section.hidden { display: none; }
-
-    /* Premium game-library presentation */
-    #game-search-wrap { position: sticky; top: 0; z-index: 5; padding: 18px 0 14px; }
-    #game-search-wrap::before {
-      content: '';
-      position: absolute;
-      inset: 0 -20px;
-      z-index: -1;
-      background: linear-gradient(to bottom, rgba(10,10,15,.96) 55%, rgba(10,10,15,.72), transparent);
-      pointer-events: none;
-    }
-    #searchInput {
-      box-shadow: 0 10px 35px rgba(0,0,0,.28), 0 0 0 1px rgba(108,124,255,.03);
-    }
-    #searchInput:hover { border-color: rgba(108,124,255,.42); }
-    .letter-section { animation: gamesSectionIn .35s ease both; }
-    .letter-header {
-      position: sticky;
-      top: 66px;
-      z-index: 2;
-      background: rgba(10,10,15,.82);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    input[type="button"] {
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
-      transition: transform .14s ease, background .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease;
-    }
-    input[type="button"]:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 16px rgba(0,0,0,.20), 0 0 0 1px rgba(108,124,255,.08);
-    }
-    input[type="button"]:active { transform: translateY(0); }
-    @keyframes gamesSectionIn { from { opacity: .72; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    @media (prefers-reduced-motion: reduce) { .letter-section { animation: none; } }
-
 100% { background-position: -200% 0; } }
   
     #site-footer {
@@ -197,8 +155,120 @@
   </div>
 
   <!-- UGS game scripts -->
-  <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js" async></script>
-  <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js" async></script>
+  
+  <script>
+  // Open UGS games inside Dizzy tabs (works on mobile; no popup)
+  (function () {
+    var CDN_BASES = [
+      "vendor/games/", // local mirror if present
+      "https://cdn.statically.io/gh/bubbls/ugs-singlefile/main/UGS-Files/",
+      "https://raw.githack.com/bubbls/ugs-singlefile/main/UGS-Files/",
+      "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/",
+      "https://gitmirror.com/cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/"
+    ];
+
+    function gameTitle(name) {
+      var n = String(name || "Game");
+      if (n.indexOf("cl") === 0) n = n.slice(2);
+      return n.replace(/([a-z])([A-Z])/g, "$1 $2") || "Game";
+    }
+
+    function normalizeFileName(name) {
+      if (name.includes(".") && name.lastIndexOf(".") > 0) return name;
+      return name + ".html";
+    }
+
+    function mobileFitHtml(html) {
+      var inject =
+        '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">' +
+        "<style id=\"dizzy-mobile-fit\">" +
+        "html,body{margin:0!important;padding:0!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#000!important;}" +
+        "body{display:flex!important;align-items:center!important;justify-content:center!important;}" +
+        "canvas,#c2canvas,#c2canvasdiv,#game,#gameContainer,#unity-canvas,iframe,embed,object{" +
+        "max-width:100vw!important;max-height:100vh!important;width:100%!important;height:auto!important;" +
+        "object-fit:contain!important;touch-action:none;}" +
+        "#c2canvasdiv{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;}" +
+        "</style>";
+      if (/<head[^>]*>/i.test(html)) {
+        html = html.replace(/<head[^>]*>/i, function (m) { return m + inject; });
+      } else {
+        html = inject + html;
+      }
+      // strip meta viewport that forces huge fixed widths
+      html = html.replace(/<meta[^>]+name=["']viewport["'][^>]*>/gi, "");
+      // re-add ours at top of head if we stripped all
+      if (/<head[^>]*>/i.test(html) && html.indexOf("dizzy-mobile-fit") === -1) {
+        html = html.replace(/<head[^>]*>/i, function (m) { return m + inject; });
+      }
+      return html;
+    }
+
+    async function fetchGameHtml(fileName) {
+      var encoded = encodeURIComponent(normalizeFileName(fileName));
+      // local first without encode path issues
+      var names = [normalizeFileName(fileName), fileName];
+      for (var i = 0; i < CDN_BASES.length; i++) {
+        var base = CDN_BASES[i];
+        for (var n = 0; n < names.length; n++) {
+          var url = base + (base.indexOf("http") === 0 ? encodeURIComponent(names[n]) : names[n]) + (base.indexOf("http") === 0 ? ("?t=" + Date.now()) : "");
+          try {
+            var res = await fetch(url, { cache: "no-store" });
+            if (!res.ok) continue;
+            var text = await res.text();
+            if (text && text.length > 80 && /html|canvas|script/i.test(text)) return text;
+          } catch (e) {}
+        }
+      }
+      return null;
+    }
+
+    window.dizzyOpenGameHtml = function (html, title) {
+      html = mobileFitHtml(html);
+      var blob = new Blob([html], { type: "text/html" });
+      var blobUrl = URL.createObjectURL(blob);
+      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+        BrowserTabs.openTab(blobUrl, gameTitle(title));
+      } else {
+        location.href = blobUrl;
+      }
+    };
+
+    window.dizzyOpenGame = async function (fileName, title) {
+      var label = gameTitle(title || fileName);
+      // show loading tab immediately if possible
+      var html = await fetchGameHtml(fileName);
+      if (!html) {
+        alert("Could not load game. CDNs may be blocked on this network.");
+        return;
+      }
+      window.dizzyOpenGameHtml(html, label);
+    };
+
+    // Capture clicks on game buttons (mobile-safe)
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (!el) return;
+      if (el.tagName !== "INPUT" || el.type !== "button") {
+        el = el.closest && el.closest('input[type="button"]');
+      }
+      if (!el || el.tagName !== "INPUT") return;
+      // only game buttons inside sections
+      if (!el.closest || !el.closest("#sections-container") && !el.closest(".buttons-container") && !el.closest(".buttons-grid")) {
+        // still allow if value looks like game
+      }
+      var file = el.dataset.file || el.value || "";
+      if (!file) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      dizzyOpenGame(file, file);
+      return false;
+    }, true);
+  })();
+  </script>
+
+  <script src="vendor/searchbut.js"></script>
+  <script src="vendor/game.js"></script>
 
 
   <!-- UV + browser engine -->

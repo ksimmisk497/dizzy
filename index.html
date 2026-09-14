@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Dizzy</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://spring-lab-521b.ksimmisk497.workers.dev" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
   <link rel="preload" href="uv/uv.bundle.js" as="script">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fonts/local.css">
   <link rel="stylesheet" href="browser.css">
   <script src="cloak.js"></script>
 <style>
@@ -240,7 +238,7 @@
       <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
       <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
       <button class="nav-btn" id="btn-reload"  onclick="BrowserTabs.tabReload()"  title="Reload">&#8635;</button>
-      <input id="address-input" class="home-tab" type="text" placeholder=""
+      <input id="address-input" class="home-tab" type="text" placeholder="Search or enter URL"
              value="New Tab" autocomplete="off"
              onfocus="BrowserTabs.addressFocus()"
              onblur="BrowserTabs.addressBlur()"
@@ -256,7 +254,7 @@
       <div id="home-inner">
         <img id="home-logo" src="obsidianlogo.png" alt="Dizzy" onerror="this.src='logo.gif'">
         <form id="home-form" onsubmit="homeSearch(event)">
-          <input id="home-search" type="text" placeholder="" autocomplete="off">
+          <input id="home-search" type="text" placeholder="Search or enter a URL" autocomplete="off">
         </form>
         <div id="home-error"></div>
         <div id="quick-links">
@@ -386,69 +384,6 @@
     }
     requestAnimationFrame(frame);
   })();
-  </script>
-
-  <script>
-    /* ═══════════════════════════════════════════════════════════════════════
-       DIZZY TYPING MESSAGES
-       Change/add messages here. These are shown in the search boxes.
-       Example: 'Find something cool...', 'Search for a game...', etc.
-       ═══════════════════════════════════════════════════════════════════════ */
-    window.DIZZY_TYPING_MESSAGES = [
-      'Search something...',
-      'What are you looking for?',
-      'Find a game...',
-      'Explore something new...',
-      'Ready when you are...'
-    ];
-
-    (function () {
-      var messages = window.DIZZY_TYPING_MESSAGES || [];
-      if (!messages.length) return;
-
-      function attachTyping(input) {
-        if (!input || input.dataset.dizzyTyping === '1') return;
-        input.dataset.dizzyTyping = '1';
-        var messageIndex = 0, charIndex = 0, deleting = false, timer = null;
-
-        function tick() {
-          var text = String(messages[messageIndex] || 'Search something...');
-          if (!deleting) {
-            charIndex = Math.min(charIndex + 1, text.length);
-            input.placeholder = text.slice(0, charIndex) + (charIndex < text.length ? '|' : '');
-            if (charIndex >= text.length) {
-              timer = setTimeout(function () { deleting = true; tick(); }, 1700);
-              return;
-            }
-          } else {
-            charIndex = Math.max(charIndex - 1, 0);
-            input.placeholder = text.slice(0, charIndex) + (charIndex > 0 ? '|' : '');
-            if (charIndex <= 0) {
-              deleting = false;
-              messageIndex = (messageIndex + 1) % messages.length;
-            }
-          }
-          timer = setTimeout(tick, deleting ? 38 : 65);
-        }
-
-        input.addEventListener('focus', function () {
-          if (timer) clearTimeout(timer);
-          input.placeholder = '';
-        });
-        input.addEventListener('blur', function () {
-          if (!input.value) {
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(tick, 250);
-          }
-        });
-        tick();
-      }
-
-      document.addEventListener('DOMContentLoaded', function () {
-        attachTyping(document.getElementById('home-search'));
-        attachTyping(document.getElementById('address-input'));
-      });
-    })();
   </script>
 
   <div id="site-footer">made by wes</div>

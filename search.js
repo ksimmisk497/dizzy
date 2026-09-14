@@ -4,18 +4,6 @@
  * @param {string} template Template for a search query (must contain %s).
  * @returns {string} Fully qualified URL
  */
-function getDizzySearchEngine() {
-  return 'duckduckgo';
-}
-
-function getDizzySearchTemplate() {
-  return 'https://duckduckgo.com/?q=%s';
-}
-
-function searchWithDizzyEngine(input) {
-  return search(input, getDizzySearchTemplate());
-}
-
 function search(input, template) {
   input = String(input || "").trim();
   if (!input) return template.replace("%s", "");

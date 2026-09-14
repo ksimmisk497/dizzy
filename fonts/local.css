@@ -1,0 +1,7 @@
+/* System font stack — no external font CDN */
+:root {
+  --dizzy-font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+html, body, input, button, select, textarea {
+  font-family: var(--dizzy-font) !important;
+}
