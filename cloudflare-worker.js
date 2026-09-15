@@ -98,11 +98,20 @@ async function proxyFetch(req, targetUrl, host) {
   const tiktokUa =
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1";
 
-  if (dizzyUa) {
+  // Always override client UA — never leak real Edge/Chrome from school device
+  if (dizzyUa && dizzyUa.length > 20) {
     bareHeaders["user-agent"] = dizzyUa;
-  } else if (!bareHeaders["user-agent"]) {
+  } else {
+    // Fall back to mobile Chrome so "real Edge" never goes upstream
     bareHeaders["user-agent"] = mobileChrome;
   }
+  // Strip client hints that expose real browser
+  delete bareHeaders["sec-ch-ua"];
+  delete bareHeaders["sec-ch-ua-full-version-list"];
+  delete bareHeaders["sec-ch-ua-platform"];
+  delete bareHeaders["sec-ch-ua-platform-version"];
+  delete bareHeaders["sec-ch-ua-model"];
+  delete bareHeaders["sec-ch-ua-mobile"];
 
   // TikTok / ByteDance always get a mobile Chrome/iOS UA (desktop often fails)
   if (/tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ttlivecdn|tiktokv/.test(hostLower)) {

@@ -100,6 +100,17 @@ class UVServiceWorker extends EventEmitter {
             if (cookieStr) requestCtx.headers.cookie = cookieStr;
             requestCtx.headers.Host = requestCtx.url.host;
 
+            // Dizzy: force selected browser UA into outbound proxy headers
+            try {
+                if (self.__dizzyUA) {
+                    requestCtx.headers['user-agent'] = self.__dizzyUA;
+                    requestCtx.headers['User-Agent'] = self.__dizzyUA;
+                    requestCtx.headers['sec-ch-ua'] = '';
+                    requestCtx.headers['sec-ch-ua-mobile'] = /Mobile|Android|iPhone/i.test(self.__dizzyUA) ? '?1' : '?0';
+                    requestCtx.headers['sec-ch-ua-platform'] = /Android/i.test(self.__dizzyUA) ? '"Android"' : (/Mac/i.test(self.__dizzyUA) ? '"macOS"' : '"Windows"');
+                }
+            } catch (e) {}
+
 
             const reqEvent = new HookEvent(requestCtx, null, null);
             this.emit('request', reqEvent);
@@ -268,6 +279,7 @@ class RequestContext {
                 'x-bare-port': this.url.port || (this.url.protocol === 'https:' ? '443' : '80'),
                 'x-bare-headers': JSON.stringify(this.headers),
                 'x-bare-forward-headers': JSON.stringify(this.forward),
+                'x-dizzy-ua': (typeof self !== 'undefined' && self.__dizzyUA) ? self.__dizzyUA : '',
             },
             redirect: this.redirect,
             credentials: this.credentials,
