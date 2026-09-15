@@ -192,8 +192,10 @@
         });
         document.getElementById('ua-save').onclick = function () {
           DizzyUA.save(sel.value);
-          DizzyUA.applyLocalSpoof();
-          if (DizzyUA.pushToSW) DizzyUA.pushToSW();
+          alert('Browser set to ' + DizzyUA.current().label);
+        };
+        sel.onchange = function () {
+          DizzyUA.save(sel.value);
         };
       }
 
@@ -245,6 +247,6 @@
       };
     });
   </script>
-  <div id="site-footer">made by foidslayer17_ on discord</div>
+  <div id="site-footer">made by wes</div>
 </body>
 </html>

@@ -2,7 +2,6 @@
 (function () {
   var KEY = "dizzy_ua_v1";
   var profiles = {
- 
     chrome_mobile: {
       label: "Chrome",
       ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
@@ -22,7 +21,7 @@
     ddg: {
       label: "DuckDuckGo",
       ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    },
+    }
   };
 
   function load() {
@@ -38,7 +37,8 @@
   function save(id) {
     if (!profiles[id]) id = "chrome_mobile";
     try { localStorage.setItem(KEY, id); } catch (e) {}
-    try { pushToSW(); } catch (e2) {}
+    applyLocalSpoof();
+    pushToSW();
     return id;
   }
 
@@ -53,23 +53,18 @@
     });
   }
 
-  // Spoof navigator.userAgent in this page context
   function applyLocalSpoof() {
     try {
       var ua = current().ua;
       var nav = window.navigator;
-      try {
-        Object.defineProperty(nav, "userAgent", { get: function () { return ua; }, configurable: true });
-      } catch (e1) {}
-      try {
-        Object.defineProperty(nav, "appVersion", { get: function () { return ua; }, configurable: true });
-      } catch (e2) {}
+      try { Object.defineProperty(nav, "userAgent", { get: function () { return ua; }, configurable: true }); } catch (e1) {}
+      try { Object.defineProperty(nav, "appVersion", { get: function () { return ua; }, configurable: true }); } catch (e2) {}
       try {
         Object.defineProperty(nav, "platform", {
           get: function () {
             if (/Android/i.test(ua)) return "Linux armv8l";
             if (/iPhone|iPad/i.test(ua)) return "iPhone";
-            if (/Mac/i.test(ua)) return "MacIntel";
+            if (/Mac OS/i.test(ua)) return "MacIntel";
             return "Win32";
           },
           configurable: true
@@ -81,7 +76,6 @@
           configurable: true
         });
       } catch (e4) {}
-      // maxTouchPoints helps sites detect mobile
       try {
         if (/Mobile|Android|iPhone/i.test(ua)) {
           Object.defineProperty(nav, "maxTouchPoints", { get: function () { return 5; }, configurable: true });
@@ -90,23 +84,36 @@
     } catch (e) {}
   }
 
-  applyLocalSpoof();
-
-    function pushToSW() {
+  function pushToSW() {
     try {
       var ua = current().ua;
-      if (!navigator.serviceWorker) return;
       var msg = { type: "DIZZY_UA", ua: ua };
+      if (!navigator.serviceWorker) return;
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage(msg);
       }
       navigator.serviceWorker.ready.then(function (reg) {
-        if (reg.active) reg.active.postMessage(msg);
+        try {
+          if (reg.active) reg.active.postMessage(msg);
+          if (reg.waiting) reg.waiting.postMessage(msg);
+          if (reg.installing) reg.installing.postMessage(msg);
+        } catch (e) {}
       }).catch(function () {});
+      // Also store so every page can read it before SW is ready
+      try { sessionStorage.setItem("dizzy_ua_string", ua); } catch (e2) {}
     } catch (e) {}
   }
+
+  applyLocalSpoof();
   pushToSW();
-  setInterval(pushToSW, 5000);
+  // Keep SW updated (SW can restart and forget memory)
+  setInterval(pushToSW, 2000);
+
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      pushToSW();
+    });
+  }
 
   window.DizzyUA = {
     profiles: profiles,
