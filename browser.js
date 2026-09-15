@@ -124,7 +124,7 @@ var BrowserTabs = (function() {
     waitForUV(function() {
       if (typeof registerSW === 'function') {
         var timedOut = false;
-        var to = setTimeout(function() { timedOut = true; finish(); }, 1200);
+        var to = setTimeout(function() { timedOut = true; finish(); }, 400);
         Promise.resolve()
           .then(function() { return registerSW(); })
           .catch(function() {})
@@ -264,6 +264,7 @@ var BrowserTabs = (function() {
 
     // Only skip UV for real local pages / blob games — never for search queries
     function isLocalPage(u) {
+      if (u && (String(u).indexOf('vendor/games/') !== -1 || String(u).indexOf('/vendor/games/') !== -1)) return true;
       if (!u) return false;
       if (/^(blob:|data:)/i.test(u)) return true;
       if (u.indexOf('UGS-Files') !== -1) return true;
@@ -306,7 +307,7 @@ var BrowserTabs = (function() {
       setTimeout(function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';
-      }, 8000);
+      }, 4000);
       frame.addEventListener('load', function() {
         var spin = document.getElementById('spin_' + id);
         if (spin) spin.style.display = 'none';

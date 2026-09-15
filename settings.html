@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="fonts/local.css">
   <link rel="stylesheet" href="browser.css">
   <script src="cloak.js"></script>
+  <script src="browser-ua.js"></script>
   <style>
     #settings-inner {
       max-width: 520px;
@@ -105,6 +106,18 @@
   <div id="tab-content-area">
     <div id="home-frame" class="active">
       <div id="settings-inner">
+        
+        <div class="s-card">
+          <h3>Browser platform</h3>
+          <div class="s-row">
+            <label>Pretend to be</label>
+            <select id="ua-profile"></select>
+          </div>
+          <div class="s-actions">
+            <button type="button" class="s-btn" id="ua-save">Save</button>
+          </div>
+        </div>
+
         <div class="s-card">
           <h3>Tab cloak</h3>
           <div class="s-row">
@@ -167,6 +180,23 @@
   <script defer>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Settings' });
+
+      if (window.DizzyUA) {
+        var sel = document.getElementById('ua-profile');
+        var cur = DizzyUA.load();
+        DizzyUA.list().forEach(function (p) {
+          var o = document.createElement('option');
+          o.value = p.id; o.textContent = p.label;
+          if (p.id === cur) o.selected = true;
+          sel.appendChild(o);
+        });
+        document.getElementById('ua-save').onclick = function () {
+          DizzyUA.save(sel.value);
+          DizzyUA.applyLocalSpoof();
+          if (DizzyUA.pushToSW) DizzyUA.pushToSW();
+        };
+      }
+
       var presets = {
         classroom: { title: 'Home', favicon: 'https://ssl.gstatic.com/classroom/favicon.png' },
         drive: { title: 'My Drive - Google Drive', favicon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },

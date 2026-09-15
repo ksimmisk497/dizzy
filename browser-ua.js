@@ -2,8 +2,16 @@
 (function () {
   var KEY = "dizzy_ua_v1";
   var profiles = {
+    chrome: {
+      label: "Chrome (Desktop)",
+      ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    },
+    chrome_mac: {
+      label: "Chrome (Mac)",
+      ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    },
     chrome_mobile: {
-      label: "Chrome",
+      label: "Chrome (Mobile)",
       ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
     },
     edge: {
@@ -22,6 +30,10 @@
       label: "DuckDuckGo",
       ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     },
+    tiktok: {
+      label: "TikTok mode (Mobile Chrome)",
+      ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1"
+    }
   };
 
   function load() {
@@ -51,6 +63,8 @@
       return { id: id, label: profiles[id].label };
     });
   }
+
+  // Spoof navigator.userAgent in this page context
   function applyLocalSpoof() {
     try {
       var ua = current().ua;
@@ -78,6 +92,7 @@
           configurable: true
         });
       } catch (e4) {}
+      // maxTouchPoints helps sites detect mobile
       try {
         if (/Mobile|Android|iPhone/i.test(ua)) {
           Object.defineProperty(nav, "maxTouchPoints", { get: function () { return 5; }, configurable: true });
