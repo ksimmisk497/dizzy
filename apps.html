@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="fonts/local.css">
   <link rel="stylesheet" href="browser.css">
   <script src="cloak.js"></script>
+  <script src="browser-ua.js"></script>
   <style>
     #apps-inner { padding: 24px 20px 80px; max-width: 1100px; margin: 0 auto; }
     #apps-grid {
@@ -33,16 +34,6 @@
       box-shadow: 0 0 0 3px rgba(108,124,255,0.12), 0 0 24px rgba(108,124,255,0.2);
       transform: translateY(-2px);
       color: #fff;
-    }
-    .app-card .app-icon-fallback{width:40px;height:40px;border-radius:10px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;background:rgba(108,124,255,.2);color:#c4b5fd}
-    .app-card .app-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      object-fit: contain;
-      margin: 0 auto 10px;
-      display: block;
-      background: rgba(255,255,255,0.04);
     }
   </style>
   <script>
@@ -133,7 +124,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'app-card';
-        b.innerHTML = '<div class="app-icon-fallback">' + a[0].charAt(0) + '</div>' + a[0];
+        b.textContent = a[0];
         b.onclick = function () {
           if (window.BrowserTabs) BrowserTabs.openTab(a[1], a[0]);
         };
