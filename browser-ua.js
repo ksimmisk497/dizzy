@@ -51,8 +51,6 @@
       return { id: id, label: profiles[id].label };
     });
   }
-
-  // Spoof navigator.userAgent in this page context
   function applyLocalSpoof() {
     try {
       var ua = current().ua;
