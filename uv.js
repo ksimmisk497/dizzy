@@ -5,7 +5,7 @@ importScripts(u("/uv/uv.config.js"));
 importScripts(u("/uv/uv.sw.js"));
 
 var sw = new UVServiceWorker();
-self.__dizzyUA = null;
+self.__dizzyUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
 async function loadStoredUA() {
   try {

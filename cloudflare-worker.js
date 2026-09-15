@@ -93,18 +93,12 @@ async function proxyFetch(req, targetUrl, host) {
 
   // Prefer Dizzy-selected UA (x-dizzy-ua), then bare headers, then Chrome Mobile
   const dizzyUa = req.headers.get("x-dizzy-ua");
-  const mobileChrome =
-    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
-  const tiktokUa =
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1";
+  const fixedChrome = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+  const tiktokUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
-  // Always override client UA — never leak real Edge/Chrome from school device
-  if (dizzyUa && dizzyUa.length > 20) {
-    bareHeaders["user-agent"] = dizzyUa;
-  } else {
-    // Fall back to mobile Chrome so "real Edge" never goes upstream
-    bareHeaders["user-agent"] = mobileChrome;
-  }
+  // Locked to Chrome — not changeable
+  bareHeaders["user-agent"] = fixedChrome;
+
   // Strip client hints that expose real browser
   delete bareHeaders["sec-ch-ua"];
   delete bareHeaders["sec-ch-ua-full-version-list"];
@@ -115,7 +109,7 @@ async function proxyFetch(req, targetUrl, host) {
 
   // TikTok / ByteDance always get a mobile Chrome/iOS UA (desktop often fails)
   if (/tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ttlivecdn|tiktokv/.test(hostLower)) {
-    bareHeaders["user-agent"] = dizzyUa && /Mobile|Android|iPhone|iPad/i.test(dizzyUa) ? dizzyUa : tiktokUa;
+    bareHeaders["user-agent"] = fixedChrome;
     bareHeaders["referer"] = bareHeaders["referer"] || "https://www.tiktok.com/";
     bareHeaders["origin"] = bareHeaders["origin"] || "https://www.tiktok.com";
     bareHeaders["sec-ch-ua-mobile"] = "?1";
