@@ -65,7 +65,9 @@ async function proxyFetch(req, targetUrl, host) {
         bareHeaders["origin"] = "https://www.tiktok.com";
       }
     }
-    // UA applied later (mobile-friendly)
+    if (!bareHeaders["user-agent"]) {
+      bareHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+    }
     // Prefer identity so media bytes are not mangled unless range needs otherwise
     if (!bareHeaders["range"]) {
       bareHeaders["accept-encoding"] = "identity";
@@ -91,28 +93,10 @@ async function proxyFetch(req, targetUrl, host) {
     delete bareHeaders["accept-encoding"];
   }
 
-  // Prefer Dizzy-selected UA (x-dizzy-ua), then bare headers, then Chrome Mobile
-  const dizzyUa = req.headers.get("x-dizzy-ua");
-  const mobileChrome =
-    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
-  const tiktokUa =
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1";
-
-  if (dizzyUa) {
-    bareHeaders["user-agent"] = dizzyUa;
-  } else if (!bareHeaders["user-agent"]) {
-    bareHeaders["user-agent"] = mobileChrome;
-  }
-
-  // TikTok / ByteDance always get a mobile Chrome/iOS UA (desktop often fails)
-  if (/tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ttlivecdn|tiktokv/.test(hostLower)) {
-    bareHeaders["user-agent"] = dizzyUa && /Mobile|Android|iPhone|iPad/i.test(dizzyUa) ? dizzyUa : tiktokUa;
-    bareHeaders["referer"] = bareHeaders["referer"] || "https://www.tiktok.com/";
-    bareHeaders["origin"] = bareHeaders["origin"] || "https://www.tiktok.com";
-    bareHeaders["sec-ch-ua-mobile"] = "?1";
-    bareHeaders["sec-fetch-site"] = bareHeaders["sec-fetch-site"] || "same-origin";
-    bareHeaders["sec-fetch-mode"] = bareHeaders["sec-fetch-mode"] || "navigate";
-    bareHeaders["sec-fetch-dest"] = bareHeaders["sec-fetch-dest"] || "document";
+  if (!bareHeaders["user-agent"]) {
+    bareHeaders["user-agent"] =
+      req.headers.get("user-agent") ||
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
   }
 
   const body = (req.method !== "GET" && req.method !== "HEAD") ? req.body : null;
