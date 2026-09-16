@@ -57,7 +57,7 @@ async function proxyFetch(req, targetUrl, host) {
 
   // Helpful defaults for media sites (TikTok, etc.)
   const hostLower = String(host || "").toLowerCase();
-  const isMediaHost = /tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ytimg|googlevideo|vimeo|twimg/.test(hostLower);
+  const isMediaHost = /tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ytimg|googlevideo|vimeo|twimg|brave/.test(hostLower);
   if (isMediaHost) {
     if (!bareHeaders["referer"]) {
       if (hostLower.includes("tiktok") || hostLower.includes("byte")) {
@@ -98,6 +98,15 @@ async function proxyFetch(req, targetUrl, host) {
 
   // Locked to Chrome — not changeable
   bareHeaders["user-agent"] = fixedChrome;
+
+  if (/brave\.com|search\.brave/.test(hostLower)) {
+    bareHeaders["user-agent"] = bareHeaders["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    bareHeaders["referer"] = bareHeaders["referer"] || "https://search.brave.com/";
+    bareHeaders["origin"] = bareHeaders["origin"] || "https://search.brave.com";
+    bareHeaders["accept"] = bareHeaders["accept"] || "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+    bareHeaders["accept-language"] = bareHeaders["accept-language"] || "en-US,en;q=0.9";
+  }
+
 
   // Strip client hints that expose real browser
   delete bareHeaders["sec-ch-ua"];

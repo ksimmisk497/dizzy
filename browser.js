@@ -108,6 +108,7 @@ var BrowserTabs = (function() {
     function finish() {
       try {
         if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
+          // Fallback: open bing directly if UV missing
           var template = 'https://search.brave.com/search?q=%s';
           var url = typeof search === 'function' ? search(raw, template) : raw;
           cb(url);
