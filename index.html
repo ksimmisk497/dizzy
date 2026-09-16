@@ -231,7 +231,6 @@
             <div id="page-nav">
         <a href="index.html" class="active">Home</a>
         <a href="games.html">Games</a>
-        <a href="movie.html">Movies</a>
         <a href="apps.html">Apps</a>
         <a href="settings.html">Settings</a>
       </div>
@@ -262,10 +261,14 @@
         <div id="quick-links">
           <button class="quick-btn" onclick="BrowserTabs.openTab('https://tiktok.com')">
             <div class="quick-circle"><img src="tiktok.png" alt="TikTok"></div>TikTok
-          </button>       
-             <button class="quick-btn" onclick="location.href='movie.html'">
-            <div class="quick-circle"><img src="movies.png" alt="TikTok"></div>Movies
           </button>
+<button class="quick-btn" onclick="window.open('https://zenox.lol', '_blank')">
+    <div class="quick-circle">
+        <img src="movie.png" alt="Movies">
+    </div>
+    Movies
+</button>
+
           <button class="quick-btn" onclick="BrowserTabs.openTab('https://roblox.com')">
             <div class="quick-circle"><img src="roblox.png" alt="Roblox"></div>Roblox
           </button>
@@ -283,25 +286,12 @@
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
   <script>
-    // Pre-warm SW the moment scripts parse — no polling, event-driven
-    (function() {
-      function tryWarm() {
-        if (typeof __uv$config !== 'undefined' && typeof registerSW === 'function') {
-          registerSW().catch(function(){});
-          return true;
-        }
-        return false;
+    // Warm UV as soon as config exists
+    (function warm() {
+      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
+        return setTimeout(warm, 50);
       }
-      // Try immediately in case scripts already loaded (cache hit)
-      if (!tryWarm()) {
-        // Otherwise hook DOMContentLoaded for first-load path
-        document.addEventListener('DOMContentLoaded', function() {
-          var t = 0;
-          var iv = setInterval(function() {
-            if (tryWarm() || (t += 30) > 3000) clearInterval(iv);
-          }, 30);
-        }, { once: true });
-      }
+      registerSW().catch(function(){});
     })();
   </script>
   <script defer>
