@@ -100,15 +100,19 @@ class UVServiceWorker extends EventEmitter {
             if (cookieStr) requestCtx.headers.cookie = cookieStr;
             requestCtx.headers.Host = requestCtx.url.host;
 
-            // Dizzy: force selected browser UA into outbound proxy headers
+            // DIZZY_CHROME_HINTS — match real Chrome so bot checks can complete
             try {
-                if (self.__dizzyUA) {
-                    requestCtx.headers['user-agent'] = self.__dizzyUA;
-                    requestCtx.headers['User-Agent'] = self.__dizzyUA;
-                    requestCtx.headers['sec-ch-ua'] = '';
-                    requestCtx.headers['sec-ch-ua-mobile'] = /Mobile|Android|iPhone/i.test(self.__dizzyUA) ? '?1' : '?0';
-                    requestCtx.headers['sec-ch-ua-platform'] = /Android/i.test(self.__dizzyUA) ? '"Android"' : (/Mac/i.test(self.__dizzyUA) ? '"macOS"' : '"Windows"');
-                }
+                var ua = self.__dizzyUA || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+                requestCtx.headers['user-agent'] = ua;
+                requestCtx.headers['User-Agent'] = ua;
+                requestCtx.headers['sec-ch-ua'] = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
+                requestCtx.headers['sec-ch-ua-mobile'] = '?0';
+                requestCtx.headers['sec-ch-ua-platform'] = '"Windows"';
+                requestCtx.headers['sec-ch-ua-platform-version'] = '"15.0.0"';
+                requestCtx.headers['sec-ch-ua-arch'] = '"x86"';
+                requestCtx.headers['sec-ch-ua-bitness'] = '"64"';
+                requestCtx.headers['sec-ch-ua-model'] = '""';
+                requestCtx.headers['accept-language'] = requestCtx.headers['accept-language'] || 'en-US,en;q=0.9';
             } catch (e) {}
 
 

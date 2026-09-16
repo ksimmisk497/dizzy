@@ -9,6 +9,8 @@
       try { Object.defineProperty(nav, "appVersion", { get: function () { return UA; }, configurable: true }); } catch (e2) {}
       try { Object.defineProperty(nav, "platform", { get: function () { return "Win32"; }, configurable: true }); } catch (e3) {}
       try { Object.defineProperty(nav, "vendor", { get: function () { return "Google Inc."; }, configurable: true }); } catch (e4) {}
+      try { Object.defineProperty(nav, "language", { get: function () { return "en-US"; }, configurable: true }); } catch (e5) {}
+      try { Object.defineProperty(nav, "languages", { get: function () { return ["en-US", "en"]; }, configurable: true }); } catch (e6) {}
     } catch (e) {}
   }
 

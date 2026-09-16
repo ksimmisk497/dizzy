@@ -92,42 +92,39 @@ async function proxyFetch(req, targetUrl, host) {
   }
 
   // Prefer Dizzy-selected UA (x-dizzy-ua), then bare headers, then Chrome Mobile
-  const dizzyUa = req.headers.get("x-dizzy-ua");
+    const dizzyUa = req.headers.get("x-dizzy-ua");
   const fixedChrome = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-  const tiktokUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
-  // Locked to Chrome — not changeable
+  // Always Chrome — consistent fingerprint (helps bot checks finish)
   bareHeaders["user-agent"] = fixedChrome;
+  bareHeaders["sec-ch-ua"] = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
+  bareHeaders["sec-ch-ua-mobile"] = '?0';
+  bareHeaders["sec-ch-ua-platform"] = '"Windows"';
+  bareHeaders["sec-ch-ua-platform-version"] = '"15.0.0"';
+  bareHeaders["sec-ch-ua-full-version-list"] = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
+  bareHeaders["sec-ch-ua-arch"] = '"x86"';
+  bareHeaders["sec-ch-ua-bitness"] = '"64"';
+  bareHeaders["sec-ch-ua-model"] = '""';
+  bareHeaders["accept-language"] = bareHeaders["accept-language"] || "en-US,en;q=0.9";
+  if (!bareHeaders["accept"]) {
+    bareHeaders["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8";
+  }
+  // Keep cookies — required for Cloudflare / bot verification
+  // Do NOT strip cookie / set-cookie related on request
 
   if (/brave\.com|search\.brave/.test(hostLower)) {
-    bareHeaders["user-agent"] = bareHeaders["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
     bareHeaders["referer"] = bareHeaders["referer"] || "https://search.brave.com/";
     bareHeaders["origin"] = bareHeaders["origin"] || "https://search.brave.com";
-    bareHeaders["accept"] = bareHeaders["accept"] || "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-    bareHeaders["accept-language"] = bareHeaders["accept-language"] || "en-US,en;q=0.9";
   }
 
-
-  // Strip client hints that expose real browser
-  delete bareHeaders["sec-ch-ua"];
-  delete bareHeaders["sec-ch-ua-full-version-list"];
-  delete bareHeaders["sec-ch-ua-platform"];
-  delete bareHeaders["sec-ch-ua-platform-version"];
-  delete bareHeaders["sec-ch-ua-model"];
-  delete bareHeaders["sec-ch-ua-mobile"];
-
-  // TikTok / ByteDance always get a mobile Chrome/iOS UA (desktop often fails)
+  // TikTok hosts
   if (/tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ttlivecdn|tiktokv/.test(hostLower)) {
     bareHeaders["user-agent"] = fixedChrome;
     bareHeaders["referer"] = bareHeaders["referer"] || "https://www.tiktok.com/";
     bareHeaders["origin"] = bareHeaders["origin"] || "https://www.tiktok.com";
-    bareHeaders["sec-ch-ua-mobile"] = "?1";
-    bareHeaders["sec-fetch-site"] = bareHeaders["sec-fetch-site"] || "same-origin";
-    bareHeaders["sec-fetch-mode"] = bareHeaders["sec-fetch-mode"] || "navigate";
-    bareHeaders["sec-fetch-dest"] = bareHeaders["sec-fetch-dest"] || "document";
   }
 
-  const body = (req.method !== "GET" && req.method !== "HEAD") ? req.body : null;
+const body = (req.method !== "GET" && req.method !== "HEAD") ? req.body : null;
 
   let targetRes;
   try {
