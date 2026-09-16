@@ -109,16 +109,16 @@ var BrowserTabs = (function() {
       try {
         if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
 
-          var template = 'https://www.startpage.com/sp/search?query=%s';
+          var template = 'https://www.duckduckgo.com/sp/search?query=%s';
           var url = typeof search === 'function' ? search(raw, template) : raw;
           cb(url);
           return;
         }
-        var template = 'https://www.startpage.com/sp/search?query=%s';
+        var template = 'https://www.duckduckgo.com/sp/search?query=%s';
         var url = typeof search === 'function' ? search(raw, template) : raw;
         cb(__uv$config.prefix + __uv$config.encodeUrl(url));
       } catch (e) {
-        cb('https://www.startpage.com/sp/search?query=' + encodeURIComponent(raw));
+        cb('https://www.duckduckgo.com/sp/search?query=' + encodeURIComponent(raw));
       }
     }
     waitForUV(function() {
