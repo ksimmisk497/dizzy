@@ -109,16 +109,16 @@ var BrowserTabs = (function() {
       try {
         if (typeof __uv$config === 'undefined' || !__uv$config.encodeUrl) {
 
-          var template = 'https://google.com/search?q=%s';
+          var template = 'https://www.google.com/search?hl=en&gl=us&pws=0&q=%s';
           var url = typeof search === 'function' ? search(raw, template) : raw;
           cb(url);
           return;
         }
-        var template = 'https://google.com/search?q=%s';
+        var template = 'https://www.google.com/search?hl=en&gl=us&pws=0&q=%s';
         var url = typeof search === 'function' ? search(raw, template) : raw;
         cb(__uv$config.prefix + __uv$config.encodeUrl(url));
       } catch (e) {
-        cb('https://google.com/search?q=' + encodeURIComponent(raw));
+        cb('https://www.google.com/search?hl=en&gl=us&pws=0&q=' + encodeURIComponent(raw));
       }
     }
     waitForUV(function() {

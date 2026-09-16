@@ -47,9 +47,9 @@ async function initUV() {
         return;
       }
     }
-    var template = (engine && engine.value) || "https://www.google.com/search?q=%s";
+    var template = (engine && engine.value) || "https://www.google.com/search?hl=en&gl=us&pws=0&q=%s";
     if (/search\.brave\.com|brave\.com/i.test(template)) {
-      template = "https://www.google.com/search?q=%s";
+      template = "https://www.google.com/search?hl=en&gl=us&pws=0&q=%s";
     }
     var url = typeof search === "function" ? search(raw, template) : raw;
     location.href = __uv$config.prefix + __uv$config.encodeUrl(url);

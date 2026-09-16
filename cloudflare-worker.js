@@ -112,9 +112,14 @@ async function proxyFetch(req, targetUrl, host) {
   // Keep cookies — required for Cloudflare / bot verification
   // Do NOT strip cookie / set-cookie related on request
 
-  if (/google\.com|www\.google/.test(hostLower)) {
+  if (/google\.com|gstatic\.com|googleapis\.com|googleusercontent\.com/.test(hostLower)) {
     bareHeaders["referer"] = bareHeaders["referer"] || "https://www.google.com/";
     bareHeaders["origin"] = bareHeaders["origin"] || "https://www.google.com";
+    bareHeaders["sec-fetch-site"] = bareHeaders["sec-fetch-site"] || "same-origin";
+    bareHeaders["sec-fetch-mode"] = bareHeaders["sec-fetch-mode"] || "navigate";
+    bareHeaders["sec-fetch-dest"] = bareHeaders["sec-fetch-dest"] || "document";
+    bareHeaders["sec-fetch-user"] = "?1";
+    bareHeaders["upgrade-insecure-requests"] = "1";
   }
 
   // TikTok hosts
