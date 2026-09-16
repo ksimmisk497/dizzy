@@ -11,7 +11,7 @@
 
   self.__uv$config = {
     prefix: join("/service/"),
-    bare: "https://spring-lab-521b.ksimmisk497.workers.dev/",
+    bare: "https://wes-prox.ksimmisk497.workers.dev/",
     encodeUrl: Ultraviolet.codec.xor.encode,
     decodeUrl: Ultraviolet.codec.xor.decode,
     handler: join("/uv/uv.handler.js"),
