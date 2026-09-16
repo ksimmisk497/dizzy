@@ -262,7 +262,7 @@
           <button class="quick-btn" onclick="BrowserTabs.openTab('https://tiktok.com')">
             <div class="quick-circle"><img src="tiktok.png" alt="TikTok"></div>TikTok
           </button>
-<button class="quick-btn" onclick="BrowserTabs.openTab('https://moviebite.org')">
+<button class="quick-btn" onclick="window.open('https://moviebite.org', '_blank')">
     <div class="quick-circle">
         <img src="movie.png" alt="Movies">
     </div>
@@ -286,12 +286,25 @@
   <script src="search.js" defer></script>
   <script src="browser.js" defer></script>
   <script>
-    // Warm UV as soon as config exists
-    (function warm() {
-      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
-        return setTimeout(warm, 50);
+    // Pre-warm SW the moment scripts parse — no polling, event-driven
+    (function() {
+      function tryWarm() {
+        if (typeof __uv$config !== 'undefined' && typeof registerSW === 'function') {
+          registerSW().catch(function(){});
+          return true;
+        }
+        return false;
       }
-      registerSW().catch(function(){});
+      // Try immediately in case scripts already loaded (cache hit)
+      if (!tryWarm()) {
+        // Otherwise hook DOMContentLoaded for first-load path
+        document.addEventListener('DOMContentLoaded', function() {
+          var t = 0;
+          var iv = setInterval(function() {
+            if (tryWarm() || (t += 30) > 3000) clearInterval(iv);
+          }, 30);
+        }, { once: true });
+      }
     })();
   </script>
   <script defer>
