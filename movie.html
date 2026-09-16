@@ -246,12 +246,43 @@ html, body {
 </style>
 </head>
 <body>
+<div class="ambient-bg" aria-hidden="true"><div class="ambient-blob a"></div><div class="ambient-blob b"></div></div>
 
-<div class="ambient-bg" aria-hidden="true">
-  <div class="ambient-blob a"></div>
-  <div class="ambient-blob b"></div>
+  <div id="browser-chrome">
+    <div id="tab-bar">
+      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+        <span class="tab-title">New Tab</span>
+      </div>
+      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
+            <div id="page-nav">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="movie.html" class="active">Movies</a>
+        <a href="movie.html">Movies</a>
+        <a href="apps.html">Apps</a>
+        <a href="settings.html">Settings</a>
+      </div>
+    </div>
+    <div id="address-bar-row">
+      <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
+      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
+      <button class="nav-btn" id="btn-reload"  onclick="BrowserTabs.tabReload()"  title="Reload">&#8635;</button>
+      <input id="address-input" class="home-tab" type="text" placeholder="Search or enter URL"
+             value="New Tab" autocomplete="off"
+             onfocus="BrowserTabs.addressFocus()"
+             onblur="BrowserTabs.addressBlur()"
+             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+      <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
+    </div>
 </div>
 
+  <div id="chrome-height-spacer"></div>
+
+  <div id="chrome-height-spacer"></div>
+
+  <div id="tab-content-area">
+    <div id="home-frame" class="active">
 <div id="page">
   <div class="movie-header"><div class="brand">DIZZY <span>MOVIES</span></div><div class="sub">Discover movies & TV shows</div></div>
 
@@ -268,6 +299,16 @@ html, body {
   <div id="home-sections"></div>
   <div id="search-results" style="display:none"></div>
 </div>
+
+    </div>
+  </div>
+
+  <script src="uv/uv.bundle.js" defer></script>
+  <script src="uv/uv.config.js" defer></script>
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="browser.js" defer></script>
+  <script>document.addEventListener('DOMContentLoaded', function(){ if(window.BrowserTabs && BrowserTabs.init) BrowserTabs.init({homeLabel:'Dizzy Movies'}); });</script>
 
 <!-- Server picker modal -->
 <div id="server-modal">
