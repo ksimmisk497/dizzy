@@ -57,7 +57,7 @@ async function proxyFetch(req, targetUrl, host) {
 
   // Helpful defaults for media sites (TikTok, etc.)
   const hostLower = String(host || "").toLowerCase();
-  const isMediaHost = /tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ytimg|googlevideo|vimeo|twimg|brave/.test(hostLower);
+  const isMediaHost = /tiktok|bytedance|byteoversea|ibytedtos|musical\.ly|ytimg|googlevideo|vimeo|twimg/.test(hostLower);
   if (isMediaHost) {
     if (!bareHeaders["referer"]) {
       if (hostLower.includes("tiktok") || hostLower.includes("byte")) {
@@ -112,9 +112,9 @@ async function proxyFetch(req, targetUrl, host) {
   // Keep cookies — required for Cloudflare / bot verification
   // Do NOT strip cookie / set-cookie related on request
 
-  if (/brave\.com|search\.brave/.test(hostLower)) {
-    bareHeaders["referer"] = bareHeaders["referer"] || "https://search.brave.com/";
-    bareHeaders["origin"] = bareHeaders["origin"] || "https://search.brave.com";
+  if (/google\.com|www\.google/.test(hostLower)) {
+    bareHeaders["referer"] = bareHeaders["referer"] || "https://www.google.com/";
+    bareHeaders["origin"] = bareHeaders["origin"] || "https://www.google.com";
   }
 
   // TikTok hosts

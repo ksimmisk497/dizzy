@@ -13420,17 +13420,14 @@ alt="favicon">
                     </div>
                     <div class="settings-card-body">
                         <div class="settings-item" style="flex-direction: column; align-items: flex-start;">
-                            <p class="settings-description" style="margin-bottom: 0.5rem;">The website all browsers will use to search. The default search engine is Brave.</p>
+                            <p class="settings-description" style="margin-bottom: 0.5rem;">The website all browsers will use to search. The default search engine is Google.</p>
                             
                             <div class="custom-select" id="searchEngineSelect">
                                 <div class="select-trigger" onclick="toggleSearchDropdown(this)">
-                                    <span id="currentSearchEngine">Brave Search</span>
+                                    <span id="currentSearchEngine">Google Search</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="select-options">
-                                    <div class="select-option" onclick="selectSearchEngine('Brave Search', 'https://search.brave.com/search?q=')">
-                                        Brave Search
-                                    </div>
                                     <div class="select-option" onclick="selectSearchEngine('Duck Duck Go', 'https://duckduckgo.com/search?q=')">
                                         Duck Duck Go
                                     </div>
@@ -17241,7 +17238,7 @@ function navigateBrowser(input) {
   let url = input.trim();
 
   if (!url.includes(".") || url.includes(" ")) {
-    const searchEngine = localStorage.getItem('nOS_searchEngine') || 'https://search.brave.com/search?q=';
+    const searchEngine = localStorage.getItem('nOS_searchEngine') || 'https://www.google.com/search?q=';
     url = searchEngine + encodeURIComponent(url);
   } else {
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -25946,7 +25943,7 @@ function executeTool_ChangeSetting(params) {
     // Search engine setting
     if (setting === 'search_engine' || setting === 'searchEngine') {
       const searchEngines = {
-        'brave': 'https://search.brave.com/search?q=',
+        'brave': 'https://www.google.com/search?q=',
         'duckduckgo': 'https://duckduckgo.com/?q=',
         'google': 'https://www.google.com/search?q=',
         'bing': 'https://www.bing.com/search?q=',
@@ -26110,8 +26107,8 @@ function executeTool_GetAvailableOptions(params) {
     },
 
     search_engines: {
-      available: ['brave', 'duckduckgo', 'google', 'bing', 'startpage', 'qwant'],
-      current: localStorage.getItem('nOS_searchEngine') || 'https://search.brave.com/search?q=',
+    available: ['google', 'duckduckgo', 'bing', 'startpage', 'qwant'],
+    current: localStorage.getItem('nOS_searchEngine') || 'https://www.google.com/search?q=',
       description: 'Available search engines for the browser'
     },
 
@@ -27077,7 +27074,7 @@ updateTaskbarStyle();
         const wispUrl = localStorage.getItem("nOS_wispUrl") || "wss://webmath.help/wisp/"
         const bareUrl = localStorage.getItem("nOS_bareUrl") || "https://useclassplay.vercel.app/fq/"
 
-        let searchUrl = localStorage.getItem("nOS_searchEngine") || "https://search.brave.com/search?q="
+        let searchUrl = localStorage.getItem("nOS_searchEngine") || "https://www.google.com/search?q="
 
         document.getElementById("browserUrlInput").addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
