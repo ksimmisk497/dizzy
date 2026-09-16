@@ -329,7 +329,7 @@ var BrowserTabs = (function() {
           try {
             var domain = new URL(url).hostname;
             updateTabTitle(id, domain);
-            setTabFavicon(id, 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=32');
+            setTabFavicon(id, 'https://icons.duckduckgo.com/ip3/' + domain + '.ico');
           } catch (e2) {
             updateTabTitle(id, url);
           }
