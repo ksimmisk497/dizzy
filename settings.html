@@ -7,6 +7,8 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="fonts/local.css">
   <link rel="stylesheet" href="browser.css">
+  <link rel="stylesheet" href="themes.css">
+  <script src="theme-switch.js"></script>
   <script src="cloak.js"></script>
   <script src="browser-ua.js"></script>
   <style>
@@ -108,6 +110,15 @@
     <div id="home-frame" class="active">
       <div id="settings-inner">
 
+    
+    <div class="s-card">
+      <h3>Site style</h3>
+      <p style="color:#888;font-size:13px;margin:6px 0 12px">Changes Dizzy&apos;s look (colors/layout feel). Not official third-party proxy apps — those need their own servers. Search stays DuckDuckGo.</p>
+      <select id="theme-profile"></select>
+      <button type="button" class="s-btn" id="theme-save">Save</button>
+      <p id="theme-status" style="color:#8a8;font-size:12px;margin-top:8px"></p>
+    </div>
+
     <div class="s-card">
       <h3>Proxy backend</h3>
       <p style="color:#888;font-size:13px;margin:6px 0 12px">Switches which Bare server UV uses. Search always stays DuckDuckGo. Other full proxy UIs need Node hosting and cannot fully run on GitHub Pages.</p>
@@ -177,6 +188,28 @@
   </script>
   <script defer>
     document.addEventListener('DOMContentLoaded', function () {
+
+      if (window.DizzyTheme) {
+        var tsel = document.getElementById('theme-profile');
+        if (tsel) {
+          var tcur = DizzyTheme.load();
+          DizzyTheme.list().forEach(function (th) {
+            var o = document.createElement('option');
+            o.value = th.id; o.textContent = th.label;
+            if (th.id === tcur) o.selected = true;
+            tsel.appendChild(o);
+          });
+          function applyTheme() {
+            DizzyTheme.save(tsel.value);
+            var el = document.getElementById('theme-status');
+            if (el) el.textContent = 'Style: ' + DizzyTheme.current().label;
+          }
+          var tbtn = document.getElementById('theme-save');
+          if (tbtn) tbtn.onclick = applyTheme;
+          tsel.onchange = applyTheme;
+        }
+      }
+
 
       if (window.DizzyProxy) {
         var psel = document.getElementById('proxy-profile');
