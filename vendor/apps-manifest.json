@@ -55,29 +55,9 @@
     "logo": "https://icons.duckduckgo.com/ip3/soundcloud.com.ico"
   },
   {
-    "name": "Replit",
-    "url": "https://replit.com",
-    "logo": "https://icons.duckduckgo.com/ip3/replit.com.ico"
-  },
-  {
-    "name": "CodePen",
-    "url": "https://codepen.io",
-    "logo": "https://icons.duckduckgo.com/ip3/codepen.io.ico"
-  },
-  {
     "name": "Archive",
     "url": "https://archive.org",
     "logo": "https://icons.duckduckgo.com/ip3/archive.org.ico"
-  },
-  {
-    "name": "Bing",
-    "url": "https://www.bing.com",
-    "logo": "https://icons.duckduckgo.com/ip3/bing.com.ico"
-  },
-  {
-    "name": "Yahoo",
-    "url": "https://www.yahoo.com",
-    "logo": "https://icons.duckduckgo.com/ip3/yahoo.com.ico"
   },
   {
     "name": "Now.gg",
@@ -95,23 +75,33 @@
     "logo": "https://icons.duckduckgo.com/ip3/desmos.com.ico"
   },
   {
-    "name": "Google",
-    "url": "https://www.google.com",
-    "logo": "https://icons.duckduckgo.com/ip3/google.com.ico"
-  },
-  {
     "name": "Netflix",
     "url": "https://www.netflix.com",
     "logo": "https://icons.duckduckgo.com/ip3/netflix.com.ico"
   },
   {
-    "name": "Canva",
-    "url": "https://www.canva.com",
-    "logo": "https://icons.duckduckgo.com/ip3/canva.com.ico"
-  },
-  {
     "name": "Scary Teacher",
     "url": "vendor/games/clscaryteacher3d.html",
     "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGiHFofdux0hhDjkheY8hxqxCQaC0baEnv2ZjLW4-oCg&s"
+  },
+    {
+    "name": "Geometry Dash",
+    "url": "vendor/games/clgeometrydashscratch.html",
+    "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStPmruI_hG-7OgndHuCvkQe5qEqbP_cnnezBQj5yQDKA&s=10"
+  },
+      {
+    "name": "Cookie Clicker",
+    "url": "vendor/games/clcookieclicker.html",
+    "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_v1u2aRkslPrhdqvnmShPEVstDyrukrQBTUNPc6VXmg&s=10"
+  },
+      {
+    "name": "Baldis Basics",
+    "url": "vendor/games/clbaldisbasics.html",
+    "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaKRg4GSxPu0SiUBCK24Ehmq3zzDhNpoEnB1PvYqzUpw&s=10"
+  },
+        {
+    "name": "1v1.lol",
+    "url": "vendor/games/cl1v1lol.html",
+    "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmj3b1PEC5Le7gT93ilODkPfjd3nJ6WzmnooXwaFKV8g&s=10"
   }
 ]
