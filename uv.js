@@ -89,6 +89,12 @@ self.addEventListener("activate", function (e) {
 self.addEventListener("message", function (e) {
   try {
     if (e.data && e.data.type === "DIZZY_UA" && e.data.ua) storeUA(e.data.ua);
+    if (e.data && e.data.type === "DIZZY_BARE") {
+      if (e.data.bare && self.__uv$config) self.__uv$config.bare = e.data.bare;
+      if (e.data.bareServers && self.__uv$config) self.__uv$config.bareServers = e.data.bareServers;
+      _barePicked = false;
+      _bareList = e.data.bareServers || _bareList;
+    }
   } catch (err) {}
 });
 
