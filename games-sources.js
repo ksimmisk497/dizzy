@@ -42,13 +42,98 @@
     return { name: name, url: url, img: img, stash: stash };
   }
 
+  function toJsDelivr(url) {
+    try {
+      var u = String(url || "");
+      // raw.githubusercontent.com/user/repo/branch/path -> cdn.jsdelivr.net/gh/user/repo@branch/path
+      var m = u.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i);
+      if (m) {
+        return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
+      }
+      // github.com/user/repo/blob/branch/path
+      m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
+      if (m) {
+        return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
+      }
+      return u;
+    } catch (e) {
+      return url;
+    }
+  }
+
+  function proxiedUrl(url) {
+    try {
+      if (typeof __uv$config !== "undefined" && __uv$config.prefix && __uv$config.encodeUrl) {
+        var origin = location.origin || "";
+        return origin + __uv$config.prefix + __uv$config.encodeUrl(url);
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function openViaSrcdoc(html, baseUrl, title) {
+    try {
+      var base = baseUrl.replace(/\/[^\/]*$/, "/");
+      if (html.indexOf("<base") === -1) {
+        html = html.replace(
+          /<head([^>]*)>/i,
+          '<head$1><base href="' + base.replace(/"/g, "&quot;") + '">'
+        );
+        if (html.indexOf("<base") === -1) {
+          html = '<base href="' + base.replace(/"/g, "&quot;") + '">' + html;
+        }
+      }
+      var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      var blobUrl = URL.createObjectURL(blob);
+      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+        BrowserTabs.openTab(blobUrl, title || "Game");
+        return true;
+      }
+      window.open(blobUrl, "_blank");
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function openGame(url, title) {
     if (!url) return;
-    if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
-      BrowserTabs.openTab(url, title || "Game");
+    url = toJsDelivr(url);
+
+    // 1) Prefer UV proxy — rewrites assets and serves as real HTML page
+    var viaProxy = proxiedUrl(url);
+    if (viaProxy) {
+      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+        BrowserTabs.openTab(viaProxy, title || "Game");
+        return;
+      }
+      window.open(viaProxy, "_blank");
       return;
     }
-    window.open(url, "_blank");
+
+    // 2) Fetch HTML and embed as blob (fixes text/plain / "shows source code")
+    fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("bad status");
+        return r.text();
+      })
+      .then(function (text) {
+        var looksHtml = /^\s*</.test(text) || /<html[\s>]/i.test(text) || /<!doctype/i.test(text);
+        if (looksHtml && openViaSrcdoc(text, url, title)) return;
+        // fallback: open URL directly in tab
+        if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+          BrowserTabs.openTab(url, title || "Game");
+        } else {
+          window.open(url, "_blank");
+        }
+      })
+      .catch(function () {
+        if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+          BrowserTabs.openTab(url, title || "Game");
+        } else {
+          window.open(url, "_blank");
+        }
+      });
   }
 
   async function j(url) {
