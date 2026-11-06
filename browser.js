@@ -1,3 +1,32 @@
+
+function __dizzyFitFrame(el) {
+  if (!el) return;
+  el.style.position = "absolute";
+  el.style.top = "0";
+  el.style.left = "0";
+  el.style.right = "0";
+  el.style.bottom = "0";
+  el.style.width = "100%";
+  el.style.height = "100%";
+  el.style.border = "0";
+  el.style.margin = "0";
+  el.style.maxWidth = "none";
+  el.style.maxHeight = "none";
+}
+function __dizzyFitAll() {
+  var area = document.getElementById("tab-content-area");
+  if (area) {
+    area.style.position = "fixed";
+    area.style.top = "var(--chrome-h)";
+    area.style.left = "var(--rail)";
+    area.style.right = "0";
+    area.style.bottom = "0";
+    Array.prototype.forEach.call(
+      area.querySelectorAll("iframe, #home-frame, .tab-frame"),
+      __dizzyFitFrame
+    );
+  }
+}
 /* DIZZY_OPEN_GUARD */
 (function () {
   var _open = window.open;
@@ -38,6 +67,7 @@ var BrowserTabs = (function() {
   function init(cfg) {
     homeLabel   = cfg.homeLabel  || 'New Tab';
     contentArea = document.getElementById('tab-content-area');
+    try { __dizzyFitAll(); } catch (e) {}
     tabBar      = document.getElementById('tab-bar');
     newTabBtn   = document.getElementById('new-tab-btn');
     addressInput= document.getElementById('address-input');
@@ -239,7 +269,7 @@ var BrowserTabs = (function() {
       updateTabTitle(id, 'New Tab');
     }
 
-    var frame = document.createElement('iframe');
+    var frame = (function(){var f=document.createElement('iframe');__dizzyFitFrame(f);return f;})();
     frame.className = 'tab-frame';
     frame.id = 'frame_' + id;
     frame.setAttribute('allowfullscreen', '');
@@ -501,4 +531,34 @@ var BrowserTabs = (function() {
     tabForward: tabForward,
     tabReload: tabReload,
   };
+})();
+
+
+/* NEW_TAB_EMBED_FIX — prevent full-site chrome nesting in custom tabs */
+(function () {
+  function toEmbed(url) {
+    if (url == null || url === "" || url === "about:blank") {
+      return "index.html?embed=1";
+    }
+    var s = String(url).trim();
+    if (/^(?:\.\/)?(index|games|apps|settings)\.html(?:[?#]|$)/i.test(s) && s.indexOf("embed=1") === -1) {
+      return s + (s.indexOf("?") >= 0 ? "&" : "?") + "embed=1";
+    }
+    return s;
+  }
+  function patch() {
+    if (!window.BrowserTabs || !BrowserTabs.openTab || BrowserTabs.openTab.__embedPatched) return false;
+    var orig = BrowserTabs.openTab.bind(BrowserTabs);
+    BrowserTabs.openTab = function (url, title) {
+      return orig(toEmbed(url), title);
+    };
+    BrowserTabs.openTab.__embedPatched = true;
+    return true;
+  }
+  if (!patch()) {
+    document.addEventListener("DOMContentLoaded", patch);
+    setTimeout(patch, 0);
+    setTimeout(patch, 200);
+    setTimeout(patch, 1000);
+  }
 })();

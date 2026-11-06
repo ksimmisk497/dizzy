@@ -1,224 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Dizzy</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="fonts/local.css">
-  <link rel="stylesheet" href="browser.css">
-  <script src="cloak.js"></script>
-  <script src="browser-ua.js"></script>
-  <style>
-    #settings-inner {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 28px 20px 90px;
-      font-family: 'Open Sans', system-ui, sans-serif;
-      color: #e8e8ff;
-    }
-    .s-card {
-      background: rgba(20,20,28,0.92);
-      border: 1px solid #2a2a35;
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 14px;
-    }
-    .s-card h3 {
-      margin: 0 0 12px;
-      font-size: 13px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: #a8a8bc;
-      font-weight: 600;
-    }
-    .s-row { margin-bottom: 12px; }
-    .s-row label {
-      display: block;
-      font-size: 12px;
-      color: #9a9aac;
-      margin-bottom: 6px;
-    }
-    .s-row input, .s-row select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #2a2a35;
-      background: #12121a;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    .s-row input:focus, .s-row select:focus {
-      border-color: rgba(108,124,255,0.6);
-    }
-    .s-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .s-btn {
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(108,124,255,0.35);
-      background: rgba(108,124,255,0.16);
-      color: #fff;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .s-btn:hover { background: rgba(108,124,255,0.28); }
-    .s-btn.ghost {
-      background: transparent;
-      border-color: #2a2a35;
-      color: #bbb;
-    }
-  </style>
+
+<script>
+(function () {
+  var embed = /(?:\?|&)embed=1(?:&|$)/.test(location.search) || window !== window.top;
+  if (embed) document.documentElement.classList.add("dizzy-embed");
+})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Dizzy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="browser.css">
+<style>
+#home-frame { overflow: auto; }
+.wrap { padding: 20px 22px 40px; max-width: none !important; }
+h1 { font-size: 20px; font-weight: 800; margin: 0 0 16px; letter-spacing: -0.3px; }
+.s-card {
+  padding: 16px; margin-bottom: 12px; border-radius: 14px;
+  background: var(--raise); border: 1px solid var(--line);
+}
+.s-card h3 { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.s-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; font-weight: 450; }
+
+.wrap, #apps-inner, #settings-inner, #games-shell {
+  animation: pageInLocal 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes pageInLocal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.g-card, .app-card, .s-card {
+  animation: cardIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+</style>
+<style id="full-bleed-fix">
+html,body{width:100%!important;height:100%!important;overflow:hidden!important}
+#tab-content-area{position:fixed!important;top:var(--chrome-h)!important;left:var(--rail)!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important}
+#home-frame,.tab-frame,#tab-content-area iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;max-width:none!important;max-height:none!important}
+#home-frame.active,.tab-frame.active{display:block!important}
+
+.wrap, #apps-inner, #settings-inner, #games-shell {
+  animation: pageInLocal 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes pageInLocal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.g-card, .app-card, .s-card {
+  animation: cardIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+</style>
 </head>
 <body>
-  <div class="ambient-bg" aria-hidden="true">
-    <div class="ambient-blob a"></div>
-    <div class="ambient-blob b"></div>
-    <div class="ambient-blob c"></div>
-  </div>
+<nav class="rail" aria-label="Main">
+<img class="rail-logo" src="favicon.png" alt="Dizzy">
+<a href="index.html" data-label="Home"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg></a>
+<a href="games.html" data-label="Games"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M8 12h2M7 10v4M16 11h.01M18 13h.01"/></svg></a>
+<a href="apps.html" data-label="Apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></a>
+<a href="settings.html" class="active" data-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></a>
+<div class="rail-spacer"></div></nav>
 
-  <div id="browser-chrome">
-    <div id="tab-bar">
-      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
-        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
-        <span class="tab-title">Settings</span>
-      </div>
-      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
-      <div id="page-nav">
-        <a href="index.html">Home</a>
-        <a href="games.html">Games</a>
-        <a href="apps.html">Apps</a>
-        <a href="settings.html" class="active">Settings</a>
-      </div>
+<div id="browser-chrome">
+  <div id="tab-bar">
+    <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+      <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+      <span class="tab-title">Settings</span>
     </div>
-    <div id="address-bar-row">
-      <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()" title="Back">&#8592;</button>
-      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
-      <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()" title="Reload">&#8635;</button>
-      <input id="address-input" class="home-tab" type="text" value="Settings" autocomplete="off"
-             onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
-             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
-      <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
-    </div>
+    <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
   </div>
-  <div id="chrome-height-spacer"></div>
-  <div id="tab-content-area">
-    <div id="home-frame" class="active">
-      <div id="settings-inner">
-<div class="s-card">
-          <h3>Tab cloak</h3>
-          <div class="s-row">
-            <label>Title</label>
-            <input id="cloak-title" type="text" placeholder="Dizzy">
-          </div>
-          <div class="s-row">
-            <label>Favicon URL</label>
-            <input id="cloak-favicon" type="text" placeholder="favicon.png">
-          </div>
-          <div class="s-row">
-            <label>Preset</label>
-            <select id="cloak-preset">
-              <option value="">Custom</option>
-              <option value="classroom">Google Classroom</option>
-              <option value="drive">Google Drive</option>
-              <option value="docs">Google Docs</option>
-              <option value="gmail">Gmail</option>
-              <option value="canvas">Canvas</option>
-            </select>
-          </div>
-          <div class="s-actions">
-            <button type="button" class="s-btn" id="cloak-save">Save</button>
-            <button type="button" class="s-btn ghost" id="cloak-reset">Reset</button>
-          </div>
-        </div>
-        <div class="s-card">
-          <h3>Panic</h3>
-          <div class="s-row">
-            <label>Key</label>
-            <input id="panic-key" type="text" maxlength="2" placeholder="`">
-          </div>
-          <div class="s-row">
-            <label>URL</label>
-            <input id="panic-url" type="text" placeholder="https://classroom.google.com/">
-          </div>
-          <div class="s-actions">
-            <button type="button" class="s-btn" id="panic-save">Save</button>
-            <button type="button" class="s-btn ghost" id="panic-test">Test</button>
-          </div>
-        </div>
+  <div id="address-bar-row">
+    <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()">&#8592;</button>
+    <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()">&#8594;</button>
+    <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()">&#8635;</button>
+    <input id="address-input" class="home-tab" type="text" value="Settings" autocomplete="off"
+           onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
+           onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+  </div>
+</div>
+
+<div id="tab-content-area">
+  <div id="home-frame" class="active">
+    <div class="wrap">
+      <h1>Settings</h1>
+      <div class="s-card">
+        <h3>Dizzy</h3>
+        <p>Proxy hub with games and apps. Use the left rail to switch pages.</p>
       </div>
-    </div>
+      <div class="s-card">
+        <h3>Games</h3>
+        <p>Sources load from CDNs. If a tab is empty, that network may block jsDelivr or GitHub.</p>
+      </div>
+      <div class="s-card">
+        <h3>Cloak</h3>
+        <p>Tab cloaking is handled by cloak.js on your deployment.</p>
+      </div>
+    
+      <div class="s-card">
+        <h3>Notifications</h3>
+        <p>Edit <code>notifications.json</code> in the site folder, then upload/push. Use title, body, and optional from.</p>
+      </div>
+</div>
   </div>
+</div>
 
-  <script src="uv/uv.bundle.js" defer></script>
-  <script src="uv/uv.config.js" defer></script>
-  <script src="register-sw.js" defer></script>
-  <script src="search.js" defer></script>
-  <script src="browser.js" defer></script>
-  <script>
-    // Warm UV as soon as config exists
-    (function warm() {
-      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
-        return setTimeout(warm, 50);
-      }
-      registerSW().catch(function(){});
-    })();
-  </script>
-  <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Settings' });
+<script src="uv/uv.bundle.js" defer></script>
+<script src="uv/uv.config.js" defer></script>
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="browser.js"></script>
+<script src="cloak.js"></script>
+<script src="browser-ua.js"></script>
 
-
-      var presets = {
-        classroom: { title: 'Home', favicon: 'https://ssl.gstatic.com/classroom/favicon.png' },
-        drive: { title: 'My Drive - Google Drive', favicon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
-        docs: { title: 'Google Docs', favicon: 'https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico' },
-        gmail: { title: 'Inbox', favicon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
-        canvas: { title: 'Canvas', favicon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' }
-      };
-      var cfg = DizzyCloak.load();
-      document.getElementById('cloak-title').value = cfg.title || '';
-      document.getElementById('cloak-favicon').value = cfg.favicon || '';
-      document.getElementById('panic-key').value = cfg.panicKey || '`';
-      document.getElementById('panic-url').value = cfg.panicUrl || 'https://classroom.google.com/';
-
-      document.getElementById('cloak-preset').addEventListener('change', function () {
-        var p = presets[this.value];
-        if (!p) return;
-        document.getElementById('cloak-title').value = p.title;
-        document.getElementById('cloak-favicon').value = p.favicon;
-      });
-
-      document.getElementById('cloak-save').onclick = function () {
-        var c = DizzyCloak.load();
-        c.title = document.getElementById('cloak-title').value.trim() || 'Dizzy';
-        c.favicon = document.getElementById('cloak-favicon').value.trim() || 'favicon.png';
-        DizzyCloak.save(c);
-        DizzyCloak.apply(c);
-      };
-      document.getElementById('cloak-reset').onclick = function () {
-        var c = DizzyCloak.load();
-        c.title = 'Dizzy';
-        c.favicon = 'favicon.png';
-        DizzyCloak.save(c);
-        DizzyCloak.apply(c);
-        document.getElementById('cloak-title').value = c.title;
-        document.getElementById('cloak-favicon').value = c.favicon;
-        document.getElementById('cloak-preset').value = '';
-      };
-      document.getElementById('panic-save').onclick = function () {
-        var c = DizzyCloak.load();
-        c.panicKey = document.getElementById('panic-key').value || '`';
-        c.panicUrl = document.getElementById('panic-url').value.trim() || 'https://classroom.google.com/';
-        DizzyCloak.save(c);
-      };
-      document.getElementById('panic-test').onclick = function () {
-        DizzyCloak.panic();
-      };
-    });
-  </script>
-  <div id="site-footer">made by wes</div>
-  <script src="poll.js"></script>
+<script>if (window.BrowserTabs) try { BrowserTabs.init({ homeLabel: 'Settings' }); } catch(e){}</script>
+<script src="teacher-watch.js"></script>
+<script src="notifications.js"></script>
 </body>
 </html>

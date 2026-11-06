@@ -1,210 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Dizzy</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="fonts/local.css">
-  <link rel="stylesheet" href="browser.css">
-  <script src="cloak.js"></script>
-  <script src="browser-ua.js"></script>
-  <style>
-    #apps-inner { padding: 24px 20px 80px; max-width: 1100px; margin: 0 auto; }
-    #apps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 14px;
-    }
-    .app-card {
-      background: rgba(20,20,28,0.9);
-      border: 1px solid #2a2a35;
-      border-radius: 14px;
-      padding: 16px 10px 14px;
-      text-align: center;
-      cursor: pointer;
-      color: #d8d8e8;
-      font-size: 12px;
-      font-weight: 600;
-      font-family: 'Open Sans', system-ui, sans-serif;
-      transition: border-color .2s, box-shadow .2s, transform .15s;
-    }
-    .app-card:hover {
-      border-color: rgba(108,124,255,0.55);
-      box-shadow: 0 0 0 3px rgba(108,124,255,0.12), 0 0 24px rgba(108,124,255,0.2);
-      transform: translateY(-2px);
-      color: #fff;
-    }
-  
-    .app-card .app-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      object-fit: contain;
-      margin: 0 auto 10px;
-      display: block;
-      background: rgba(255,255,255,0.04);
-    }
-  </style>
-  <script>
-    document.title = 'Dizzy';
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Dizzy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="browser.css">
+
+<script>
+(function () {
+  var embed = /(?:\?|&)embed=1(?:&|$)/.test(location.search) || window !== window.top;
+  if (embed) document.documentElement.classList.add("dizzy-embed");
+})();
+</script>
+
+<style id="full-bleed-fix">
+html,body{width:100%!important;height:100%!important;overflow:hidden!important}
+#tab-content-area{position:fixed!important;top:var(--chrome-h)!important;left:var(--rail)!important;right:0!important;bottom:0!important}
+#home-frame{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;overflow:auto}
+#home-frame.active{display:block!important}
+.wrap { padding: 28px 24px; }
+.wrap h1 { margin: 0 0 8px; font-size: 18px; color: #f5eaff; }
+.wrap p { margin: 0; color: #b89ad4; font-size: 13px; }
+</style>
 </head>
 <body>
-  <div class="ambient-bg" aria-hidden="true">
-    <div class="ambient-blob a"></div>
-    <div class="ambient-blob b"></div>
-    <div class="ambient-blob c"></div>
-  </div>
-  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+<nav class="rail" aria-label="Main">
+<img class="rail-logo" src="favicon.png" alt="Dizzy">
+<a href="index.html" data-label="Home"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg></a>
+<a href="games.html" data-label="Games"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M8 12h2M7 10v4M16 11h.01M18 13h.01"/></svg></a>
+<a href="apps.html" class="active" data-label="Apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></a>
+<a href="settings.html" data-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></a>
+<div class="rail-spacer"></div></nav>
 
-  <div id="browser-chrome">
-    <div id="tab-bar">
-      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
-        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
-        <span class="tab-title">Apps</span>
-      </div>
-      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
-      <div id="page-nav">
-        <a href="index.html">Home</a>
-        <a href="games.html">Games</a>
-        <a href="apps.html" class="active">Apps</a>
-        <a href="settings.html">Settings</a>
-      </div>
+<div id="browser-chrome">
+  <div id="tab-bar">
+    <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+      <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+      <span class="tab-title">Apps</span>
     </div>
-    <div id="address-bar-row">
-      <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()" title="Back">&#8592;</button>
-      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
-      <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()" title="Reload">&#8635;</button>
-      <input id="address-input" class="home-tab" type="text" value="Apps" autocomplete="off"
-             onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
-             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
-      <button class="nav-btn" onclick="BrowserTabs.switchTab('home')" title="Home">⌂</button>
-    </div>
+    <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
   </div>
-  <div id="chrome-height-spacer"></div>
-  <div id="tab-content-area">
-    <div id="home-frame" class="active">
-      <div id="apps-inner">
-        <div id="apps-grid"></div>
-      </div>
+  <div id="address-bar-row">
+    <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()">&#8592;</button>
+    <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()">&#8594;</button>
+    <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()">&#8635;</button>
+    <input id="address-input" class="home-tab" type="text" value="Apps" autocomplete="off"
+           onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
+           onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+  </div>
+</div>
+
+<div id="tab-content-area">
+  <div id="home-frame" class="active">
+    <div class="wrap">
+      <h1>Apps</h1>
+      <p></p>
     </div>
   </div>
+</div>
 
-  <script src="uv/uv.bundle.js" defer></script>
-  <script src="uv/uv.config.js" defer></script>
-  <script src="register-sw.js" defer></script>
-  <script src="search.js" defer></script>
-  <script src="browser.js" defer></script>
-  <script>
-    // Warm UV as soon as config exists
-    (function warm() {
-      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
-        return setTimeout(warm, 50);
-      }
-      registerSW().catch(function(){});
-    })();
-  </script>
-  <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Apps' });
+<script src="uv/uv.bundle.js" defer></script>
+<script src="uv/uv.config.js" defer></script>
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="browser.js"></script>
+<script src="cloak.js"></script>
+<script src="browser-ua.js"></script>
+<script src="teacher-watch.js"></script>
 
-      function renderApps(list) {
-        var grid = document.getElementById('apps-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        list.forEach(function (a) {
-          var name = a.name || a[0] || 'App';
-          var url = a.url || a[1] || '#';
-          var logo = a.logo || a.imgSrc || a[2] || '';
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'app-card';
-          if (logo) {
-            b.innerHTML = '<img class="app-logo" src="' + logo + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"><span></span>';
-            b.querySelector('span').textContent = name;
-          } else {
-            b.textContent = name;
-          }
-          b.onclick = function () {
-            if (window.BrowserTabs) BrowserTabs.openTab(url, name);
-          };
-          grid.appendChild(b);
-        });
-      }
-
-      fetch('vendor/apps-manifest.json', { cache: 'no-store' })
-        .then(function (r) { return r.json(); })
-        .then(function (list) {
-          window.__dizzyApps = list;
-          renderApps(list);
-        })
-        .catch(function () {
-          var grid = document.getElementById('apps-grid');
-          if (grid) grid.innerHTML = '<p style="color:#888;grid-column:1/-1;text-align:center">Could not load vendor/apps-manifest.json</p>';
-        });
-    });
-  </script>
-  <script>
-  (function () {
-    var canvas = document.getElementById('particles-canvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var dots = [];
-    var colors = ['#8b7cf7', '#6c7cff', '#a78bfa', '#c4b5fd'];
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      var count = Math.min(55, Math.floor((canvas.width * canvas.height) / 18000));
-      dots = [];
-      for (var i = 0; i < count; i++) {
-        dots.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.45,
-          vy: (Math.random() - 0.5) * 0.45,
-          r: Math.random() * 2 + 0.8,
-          c: colors[(Math.random() * colors.length) | 0],
-          a: Math.random() * 0.4 + 0.28,
-          tw: Math.random() * Math.PI * 2,
-          tws: 0.02 + Math.random() * 0.04
-        });
-      }
-    }
-    window.addEventListener('resize', resize);
-    resize();
-    function frame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var i = 0; i < dots.length; i++) {
-        var p = dots[i];
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        for (var j = i + 1; j < dots.length; j++) {
-          var q = dots[j];
-          var dx = p.x - q.x, dy = p.y - q.y;
-          var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 140) {
-            ctx.beginPath();
-            ctx.strokeStyle = 'rgba(108,124,255,' + (0.28 * (1 - d / 140)).toFixed(3) + ')';
-            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-          }
-        }
-        p.tw += p.tws;
-        var twinkle = 0.55 + 0.45 * Math.sin(p.tw);
-        ctx.beginPath();
-        ctx.fillStyle = p.c;
-        ctx.globalAlpha = Math.min(1, p.a * twinkle);
-        ctx.arc(p.x, p.y, p.r * (0.85 + 0.25 * twinkle), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  })();
-  </script>
-  <div id="site-footer">made by Wes</div>
-  <script src="poll.js"></script>
+<script>
+if (window.BrowserTabs) try { BrowserTabs.init({ homeLabel: "Apps" }); } catch (e) {}
+</script>
+<script src="notifications.js"></script>
 </body>
 </html>

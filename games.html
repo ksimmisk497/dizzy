@@ -1,398 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Dizzy</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="preconnect" href="https://spring-lab-521b.ksimmisk497.workers.dev" crossorigin>
-  <link rel="preconnect" href="https://dizzy.workers.dev" crossorigin>
-  <link rel="preload" href="uv/uv.bundle.js" as="script">
-  <link rel="stylesheet" href="fonts/local.css">
-  <link rel="stylesheet" href="browser.css">
-  <script src="cloak.js"></script>
-  <script src="browser-ua.js"></script>
-  <style>
-    /* Games home screen */
-    #home-frame { overflow-y: auto; }
 
-    #games-inner {
-      padding: 16px 20px 80px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+<script>
+(function () {
+  var embed = /(?:\?|&)embed=1(?:&|$)/.test(location.search) || window !== window.top;
+  if (embed) document.documentElement.classList.add("dizzy-embed");
+})();
+</script>
 
-    #game-search-wrap { text-align: center; padding: 16px 0 10px; }
-    #searchInput {
-      padding: 11px 18px;
-      border: 1px solid #2a2a35;
-      border-radius: 10px;
-      font-size: 14px;
-      width: min(420px, 92vw);
-      background: #14141c;
-      color: #fff;
-      outline: none;
-      font-family: 'Open Sans', sans-serif;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    #searchInput::placeholder { color: #4a4a58; }
-    #searchInput:focus { border-color: #6c7cff; box-shadow: 0 0 0 3px rgba(108,124,255,0.18); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Dizzy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="browser.css">
+<style>
+#home-frame { overflow: auto; }
+.wrap {
+  padding: 16px 18px 32px;
+  width: 100%;
+  max-width: none !important;
+  box-sizing: border-box;
+}
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.row h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+.count { color: var(--muted); font-size: 13px; font-weight: 500; }
+#g-search {
+  flex: 1;
+  min-width: 160px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(155, 92, 255, 0.45);
+  background: #120a1c;
+  color: #f5eaff;
+  font-family: var(--font);
+  outline: none;
+}
+#g-search:focus { border-color: color-mix(in srgb, var(--acc) 40%, transparent); }
+.g-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.g-tab {
+  width: 52px; height: 52px; padding: 0; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--raise); cursor: pointer; overflow: hidden;
+  color: var(--muted); font-weight: 700; font-size: 12px; font-family: var(--font);
+}
+.g-tab.tab-text { width: auto; min-width: 52px; padding: 0 12px; }
+.g-tab img { width: 52px; height: 52px; object-fit: cover; display: block; }
+.g-tab.active, .g-tab:hover { border-color: var(--line2); box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 25%, transparent); }
+.g-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.g-card {
+  padding: 10px; text-align: center; cursor: pointer; color: var(--ink);
+  font-family: var(--font); background: var(--raise); border: 1px solid var(--line); border-radius: 14px;
+}
+.g-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #0a0a0c; margin-bottom: 8px; display: block; }
+.g-card .n { font-size: 12px; font-weight: 650; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.g-card .s { font-size: 10px; color: var(--faint); margin-top: 4px; }
+.g-status { text-align: center; color: var(--muted); padding: 28px; font-size: 14px; }
+.g-more {
+  display: block; margin: 16px auto; padding: 10px 16px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--raise2); color: var(--ink);
+  font-family: var(--font); font-weight: 650; cursor: pointer;
+}
 
-    /* Letter sections */
-    #sections-container { margin-top: 8px; }
-    .letter-section { margin-bottom: 28px; }
-    .letter-header {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #444;
-      padding: 6px 0 10px;
-      border-bottom: 1px solid #1c1c28;
-      margin-bottom: 12px;
-    }
-    .buttons-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.wrap, #apps-inner, #settings-inner, #games-shell {
+  animation: pageInLocal 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes pageInLocal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.g-card, .app-card, .s-card {
+  animation: cardIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-    input[type="button"] {
-      padding: 9px 16px;
-      background: #14141c;
-      color: #d0d0e0;
-      border: 1px solid #2a2a35;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: 'Open Sans', sans-serif;
-      cursor: pointer;
-      transition: background .15s, border-color .15s, color .15s;
-      white-space: nowrap;
-    }
-    input[type="button"]:hover { background: #1e1e2e; border-color: #6c7cff; color: #fff; }
-    input[type="button"]:active { background: #252535; }
+#full-width-games, .wrap {
+  width: 100% !important;
+  max-width: none !important;
+}
+#g-search::placeholder { color: #7a5a9a; }
+.g-card, .g-tab {
+  background: #120a1c !important;
+  border-color: rgba(155, 92, 255, 0.35) !important;
+  color: #f5eaff !important;
+  font-family: var(--font) !important;
+}
+.g-card .s { color: #9b5cff !important; font-size: 9px; }
+.row h1, .count { font-family: var(--font) !important; }
+.count { color: #b89ad4 !important; }
+</style>
+<style id="full-bleed-fix">
+html,body{width:100%!important;height:100%!important;overflow:hidden!important}
+#tab-content-area{position:fixed!important;top:var(--chrome-h)!important;left:var(--rail)!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important}
+#home-frame,.tab-frame,#tab-content-area iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;max-width:none!important;max-height:none!important}
+#home-frame.active,.tab-frame.active{display:block!important}
 
-    .letter-section.hidden { display: none; }
-100% { background-position: -200% 0; } }
-  
-    #site-footer {
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      z-index: 50;
-      text-align: center;
-      padding: 8px 0;
-      font-size: 12px;
-      color: #555;
-      background: #0a0a0f;
-      border-top: 1px solid #1c1c28;
-      pointer-events: none;
-    }
-    #tab-content-area { bottom: 32px !important; }
+.wrap, #apps-inner, #settings-inner, #games-shell {
+  animation: pageInLocal 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes pageInLocal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.g-card, .app-card, .s-card {
+  animation: cardIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-    #sections-container { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px; }
-    .letter-section { margin-bottom: 18px; }
-    .letter-header {
-      font-size: 12px; font-weight: 700; letter-spacing: 2px;
-      color: #8b8ba0; margin: 6px 4px 10px; text-transform: uppercase;
-    }
-    .buttons-grid {
-      display: flex; flex-wrap: wrap; gap: 8px;
-    }
-    .buttons-grid input[type="button"] {
-      background: rgba(20,20,28,0.92);
-      border: 1px solid #2a2a35;
-      color: #e0e0ef;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .buttons-grid input[type="button"]:hover {
-      border-color: rgba(108,124,255,0.55);
-      color: #fff;
-    }
-
-  </style>
-
-  <script>
-    (function () {
-      function desired() {
-        try {
-          var c = JSON.parse(localStorage.getItem('dizzy_cloak_v1') || '{}');
-          return (c && c.title) ? c.title : 'Dizzy';
-        } catch (e) { return 'Dizzy'; }
-      }
-      document.title = desired();
-      setInterval(function () {
-        var d = desired();
-        if (document.title !== d) document.title = d;
-      }, 1500);
-    })();
-  </script>
-
+#full-width-games, .wrap {
+  width: 100% !important;
+  max-width: none !important;
+}
+#g-search::placeholder { color: #7a5a9a; }
+.g-card, .g-tab {
+  background: #120a1c !important;
+  border-color: rgba(155, 92, 255, 0.35) !important;
+  color: #f5eaff !important;
+  font-family: var(--font) !important;
+}
+.g-card .s { color: #9b5cff !important; font-size: 9px; }
+.row h1, .count { font-family: var(--font) !important; }
+.count { color: #b89ad4 !important; }
+</style>
 </head>
 <body>
-  <div class="ambient-bg" aria-hidden="true">
-    <div class="ambient-blob a"></div>
-    <div class="ambient-blob b"></div>
-    <div class="ambient-blob c"></div>
+<nav class="rail" aria-label="Main">
+<img class="rail-logo" src="favicon.png" alt="Dizzy">
+<a href="index.html" data-label="Home"><svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg></a>
+<a href="games.html" class="active" data-label="Games"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M8 12h2M7 10v4M16 11h.01M18 13h.01"/></svg></a>
+<a href="apps.html" data-label="Apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></a>
+<a href="settings.html" data-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></a>
+<div class="rail-spacer"></div></nav>
+
+<div id="browser-chrome">
+  <div id="tab-bar">
+    <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
+      <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
+      <span class="tab-title">Games</span>
+    </div>
+    <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
   </div>
-
-
-  <div id="browser-chrome">
-    <div id="tab-bar">
-      <div class="tab active" id="home-tab" onclick="BrowserTabs.switchTab('home')">
-        <img class="tab-favicon" src="favicon.png" onerror="this.style.display='none'">
-        <span class="tab-title">Games</span>
-      </div>
-      <button id="new-tab-btn" onclick="BrowserTabs.openTab(null)" title="New Tab">+</button>
-            <div id="page-nav">
-        <a href="index.html">Home</a>
-        <a href="games.html" class="active">Games</a>
-        <a href="apps.html">Apps</a>
-        <a href="settings.html">Settings</a>
-      </div>
-    </div>
-    <div id="address-bar-row">
-      <button class="nav-btn" id="btn-back"    onclick="BrowserTabs.tabBack()"    title="Back">&#8592;</button>
-      <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()" title="Forward">&#8594;</button>
-      <button class="nav-btn" id="btn-reload"  onclick="BrowserTabs.tabReload()"  title="Reload">&#8635;</button>
-      <input id="address-input" class="home-tab" type="text" placeholder="Search or enter URL"
-             value="Games" autocomplete="off"
-             onfocus="BrowserTabs.addressFocus()"
-             onblur="BrowserTabs.addressBlur()"
-             onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
-      <button class="nav-btn" onclick="window.location.href='index.html'" title="Home">⌂</button>
-    </div>
+  <div id="address-bar-row">
+    <button class="nav-btn" id="btn-back" onclick="BrowserTabs.tabBack()">&#8592;</button>
+    <button class="nav-btn" id="btn-forward" onclick="BrowserTabs.tabForward()">&#8594;</button>
+    <button class="nav-btn" id="btn-reload" onclick="BrowserTabs.tabReload()">&#8635;</button>
+    <input id="address-input" class="home-tab" type="text" value="Games" autocomplete="off"
+           onfocus="BrowserTabs.addressFocus()" onblur="BrowserTabs.addressBlur()"
+           onkeydown="if(event.key==='Enter')BrowserTabs.addressGo()">
+  </div>
 </div>
 
-  <div id="chrome-height-spacer"></div>
-
-  <div id="tab-content-area">
-    <!-- Games list as the "home" screen for this page -->
-    <div id="home-frame" class="active">
-      <div id="games-inner">
-        <div id="game-search-wrap">
-          <input type="text" id="searchInput" placeholder="Search 2947 games…" autocomplete="off">
-        </div>
-
-        <div id="sections-container"></div>
+<div id="tab-content-area">
+  <div id="home-frame" class="active">
+    <div class="wrap">
+      <div class="row">
+        <h1>Games</h1>
+        <span class="count" id="g-count">…</span>
+        <input id="g-search" type="search" placeholder="Search" autocomplete="off">
       </div>
+      <div class="g-tabs" id="g-tabs"></div>
+      <div class="g-status" id="g-status">Loading…</div>
+      <div class="g-grid" id="g-grid"></div>
+      <button type="button" class="g-more" id="g-more" style="display:none">Load more</button>
     </div>
   </div>
-<!-- UV + browser engine -->
-<script src="browser.js" defer></script>
-  <script>
-    // Warm UV as soon as config exists
-    (function warm() {
-      if (typeof __uv$config === 'undefined' || typeof registerSW !== 'function') {
-        return setTimeout(warm, 50);
-      }
-      registerSW().catch(function(){});
-    })();
-  </script>
+</div>
 
-  <!-- Local games only — no CDN -->
-  <script src="browser.js"></script>
-  <script src="uv/uv.bundle.js" defer></script>
-  <script src="uv/uv.config.js" defer></script>
-  <script src="register-sw.js" defer></script>
-  <script src="search.js" defer></script>
-  <script>
-  (function () {
-    function titleFromFile(name) {
-      var t = String(name || '');
-      if (t.indexOf('cl') === 0) t = t.slice(2);
-      t = t.replace(/\.(html?|txt|docx)$/i, '');
-      t = t.replace(/([a-z])([A-Z])/g, '$1 $2');
-      t = t.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
-      t = t.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
-      return t || name;
-    }
+<script src="uv/uv.bundle.js" defer></script>
+<script src="uv/uv.config.js" defer></script>
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="browser.js"></script>
+<script src="cloak.js"></script>
+<script src="browser-ua.js"></script>
 
-    function letterOf(title) {
-      var c = (title || '#').charAt(0).toUpperCase();
-      return /[A-Z]/.test(c) ? c : '#';
-    }
-
-    function openLocalGame(file, title) {
-      var path = 'vendor/games/' + file;
-      // absolute-from-site path for GH pages subpath
-      try {
-        path = new URL('vendor/games/' + encodeURI(file), location.href).pathname;
-        // keep relative for portability
-        path = 'vendor/games/' + file.split('/').map(encodeURIComponent).join('/');
-      } catch (e) {
-        path = 'vendor/games/' + file;
-      }
-      if (window.BrowserTabs && BrowserTabs.openTab) {
-        BrowserTabs.openTab(path, title || titleFromFile(file));
-      } else {
-        location.href = path;
-      }
-    }
-    window.openLocalGame = openLocalGame;
-
-    function renderGames(list) {
-      var container = document.getElementById('sections-container');
-      if (!container) return;
-      container.innerHTML = '';
-      var byLetter = {};
-      list.forEach(function (g) {
-        var L = g.letter || letterOf(g.title);
-        if (!byLetter[L]) byLetter[L] = [];
-        byLetter[L].push(g);
-      });
-      Object.keys(byLetter).sort(function (a, b) {
-        if (a === '#') return 1;
-        if (b === '#') return -1;
-        return a.localeCompare(b);
-      }).forEach(function (L) {
-        var sec = document.createElement('div');
-        sec.className = 'letter-section';
-        var h = document.createElement('div');
-        h.className = 'letter-header';
-        h.textContent = L;
-        sec.appendChild(h);
-        var grid = document.createElement('div');
-        grid.className = 'buttons-grid';
-        byLetter[L].sort(function (a, b) {
-          return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
-        }).forEach(function (g) {
-          var btn = document.createElement('input');
-          btn.type = 'button';
-          btn.value = g.title;
-          btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            openLocalGame(g.file, g.title);
-          });
-          grid.appendChild(btn);
-        });
-        sec.appendChild(grid);
-        container.appendChild(sec);
-      });
-    }
-
-    function boot() {
-      if (window.BrowserTabs) BrowserTabs.init({ homeLabel: 'Games' });
-
-      fetch('vendor/games-manifest.json', { cache: 'no-store' })
-        .then(function (r) { return r.json(); })
-        .then(function (list) {
-          window.__dizzyGames = list;
-          renderGames(list);
-        })
-        .catch(function () {
-          // fallback: build from embedded minimal list
-          var fallback = [];
-          renderGames(fallback);
-          var c = document.getElementById('sections-container');
-          if (c) c.innerHTML = '<p style="color:#888;text-align:center;padding:20px">No local games found. Put HTML files in vendor/games/ and rebuild manifest.</p>';
-        });
-
-      var searchInput = document.getElementById('searchInput');
-      if (searchInput) {
-        searchInput.addEventListener('input', function () {
-          var q = searchInput.value.trim().toLowerCase();
-          var list = window.__dizzyGames || [];
-          if (!q) { renderGames(list); return; }
-          renderGames(list.filter(function (g) {
-            return (g.title || '').toLowerCase().indexOf(q) !== -1 ||
-                   (g.file || '').toLowerCase().indexOf(q) !== -1;
-          }));
-        });
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', boot);
-    } else boot();
-  })();
-  </script>
-
-  <canvas id="particles-canvas" aria-hidden="true"></canvas>
-  <script>
-  (function () {
-    var canvas = document.getElementById('particles-canvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var dots = [];
-    var mouse = { x: -9999, y: -9999 };
-    var colors = ['#8b7cf7', '#6c7cff', '#a78bfa', '#c4b5fd'];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      var count = Math.min(70, Math.floor((canvas.width * canvas.height) / 18000));
-      dots = [];
-      for (var i = 0; i < count; i++) {
-        dots.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.45,
-          vy: (Math.random() - 0.5) * 0.45,
-          r: Math.random() * 2 + 0.8,
-          c: colors[(Math.random() * colors.length) | 0],
-          a: Math.random() * 0.4 + 0.28,
-          tw: Math.random() * Math.PI * 2,
-          tws: 0.02 + Math.random() * 0.04
-        });
-      }
-    }
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', function (e) {
-      mouse.x = e.clientX; mouse.y = e.clientY;
+<script src="games-sources.js"></script>
+<script>
+(function(){
+  if (window.BrowserTabs) try { BrowserTabs.init({ homeLabel: 'Games' }); } catch(e){}
+  if (typeof DizzyGames === 'undefined') {
+    document.getElementById('g-status').textContent = 'Missing games-sources.js';
+    return;
+  }
+  var current='ubz', list=[], filtered=[], shown=0, PAGE=80;
+  var tabs=document.getElementById('g-tabs'), grid=document.getElementById('g-grid');
+  var status=document.getElementById('g-status'), count=document.getElementById('g-count');
+  var more=document.getElementById('g-more'), search=document.getElementById('g-search');
+  var ICONS={
+    ubz:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ubz.png',
+    gn:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/gn.png',
+    elite:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/elite.png',
+    ugs:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ugs.png',
+    seraph:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/seraph.png',
+    ckv:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/chicken.png',
+    noah:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/noah.png',
+    lumin:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/lumin.png',
+    daknux:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/daknux.png',
+    kh0:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/3kho.png',
+    alexr:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/alexr.png',
+    hydra:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/hydra.png',
+    diesmos:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/diesmos.png',
+    gclass:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/classroomimage.png',
+    cc:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ccported.png',
+    kh3:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/3kho.png',
+    bloxy:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/bloxy.png',
+    yt:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/youtube.png',
+    blox:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/blox.png',
+    nebula:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/nebula.PNG'
+  };
+  Object.keys(DizzyGames.STASH).forEach(function(key){
+    var b=document.createElement('button'); b.type='button';
+    b.className='g-tab'+(key===current?' active':'')+(ICONS[key]?'':' tab-text');
+    b.title=DizzyGames.STASH[key];
+    if(ICONS[key]){ var img=document.createElement('img'); img.src=ICONS[key]; img.onerror=function(){this.src='favicon.png'}; b.appendChild(img); }
+    else b.textContent=DizzyGames.STASH[key];
+    b.onclick=function(){ document.querySelectorAll('.g-tab').forEach(function(x){x.classList.remove('active')}); b.classList.add('active'); current=key; load(); };
+    tabs.appendChild(b);
+  });
+  function applyFilter(){
+    var q=(search.value||'').trim().toLowerCase();
+    filtered=!q?list.slice():list.filter(function(g){return (g.name||'').toLowerCase().indexOf(q)!==-1});
+    shown=0; grid.innerHTML=''; count.textContent=filtered.length+' games';
+    status.style.display=filtered.length?'none':'block'; status.textContent=filtered.length?'':'No matches';
+    renderMore();
+  }
+  function renderMore(){
+    filtered.slice(shown,shown+PAGE).forEach(function(g){
+      var c=document.createElement('button'); c.type='button'; c.className='g-card';
+      c.innerHTML="<img loading='lazy' alt=''><div class='n'></div><div class='s'></div>";
+      var img=c.querySelector('img'); img.src=g.img||'favicon.png'; img.onerror=function(){this.src='favicon.png'};
+      c.querySelector('.n').textContent=g.name; c.querySelector('.s').textContent=DizzyGames.STASH[g.stash]||'';
+      c.onclick=function(e){ e.preventDefault(); DizzyGames.openGame(g.url,g.name); };
+      grid.appendChild(c);
     });
-    resize();
-
-    function frame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var i = 0; i < dots.length; i++) {
-        var p = dots[i];
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        for (var j = i + 1; j < dots.length; j++) {
-          var q = dots[j];
-          var dx = p.x - q.x, dy = p.y - q.y;
-          var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 140) {
-            ctx.beginPath();
-            ctx.strokeStyle = 'rgba(108,124,255,' + (0.32 * (1 - d / 140)).toFixed(3) + ')';
-            ctx.lineWidth = 1;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
-          }
-        }
-        var mdx = mouse.x - p.x, mdy = mouse.y - p.y;
-        var md = Math.sqrt(mdx * mdx + mdy * mdy);
-        if (md < 140) {
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(167,139,250,' + (0.38 * (1 - md / 150)).toFixed(3) + ')';
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-        }
-        p.tw += p.tws || 0.03;
-        var twinkle = 0.55 + 0.45 * Math.sin(p.tw || 0);
-        // occasional stronger pulse
-        if (((Math.sin(p.tw * 0.35) + 1) * 0.5) > 0.97) twinkle = 1;
-        ctx.beginPath();
-        ctx.fillStyle = p.c;
-        ctx.globalAlpha = Math.min(1, (p.a || 0.3) * twinkle);
-        ctx.arc(p.x, p.y, p.r * (0.85 + 0.25 * twinkle), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  })();
-  </script>
-
-  <div id="site-footer">made by Wes</div>
-  <script src="poll.js"></script>
+    shown=Math.min(filtered.length,shown+PAGE);
+    more.style.display=shown<filtered.length?'block':'none';
+  }
+  more.onclick=renderMore;
+  search.oninput=function(){ clearTimeout(search._t); search._t=setTimeout(applyFilter,200); };
+  async function load(){
+    status.style.display='block'; status.textContent='Loading…'; grid.innerHTML='';
+    try { list=await DizzyGames.loadStash(current); applyFilter(); if(!list.length){ status.style.display='block'; status.textContent='Source empty or blocked'; } }
+    catch(e){ status.textContent='Load failed'; }
+  }
+  load();
+})();
+</script>
+<script src="teacher-watch.js"></script>
+<script src="notifications.js"></script>
 </body>
 </html>
