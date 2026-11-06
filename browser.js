@@ -537,8 +537,11 @@ var BrowserTabs = (function() {
 /* NEW_TAB_EMBED_FIX — prevent full-site chrome nesting in custom tabs */
 (function () {
   function toEmbed(url) {
-    if (url == null || url === "" || url === "about:blank") {
+    if (url == null || url === "") {
       return "index.html?embed=1";
+    }
+    if (url === "about:blank" || String(url).indexOf("blob:") === 0 || String(url).indexOf("data:") === 0) {
+      return url;
     }
     var s = String(url).trim();
     if (/^(?:\.\/)?(index|games|apps|settings)\.html(?:[?#]|$)/i.test(s) && s.indexOf("embed=1") === -1) {
@@ -560,5 +563,28 @@ var BrowserTabs = (function() {
     setTimeout(patch, 0);
     setTimeout(patch, 200);
     setTimeout(patch, 1000);
+  }
+})();
+
+/* OPEN_BLANK_SKIP_UV */
+(function () {
+  function patch() {
+    if (!window.BrowserTabs || !BrowserTabs.openTab || BrowserTabs.openTab.__blankOk) return false;
+    var orig = BrowserTabs.openTab.bind(BrowserTabs);
+    BrowserTabs.openTab = function (url, title) {
+      var s = url == null ? "" : String(url);
+      // about:blank / blob / data must not go through UV or embed rewrite
+      if (s === "about:blank" || s.indexOf("blob:") === 0 || s.indexOf("data:") === 0) {
+        return orig(s, title);
+      }
+      return orig(url, title);
+    };
+    BrowserTabs.openTab.__blankOk = true;
+    return true;
+  }
+  if (!patch()) {
+    document.addEventListener("DOMContentLoaded", patch);
+    setTimeout(patch, 0);
+    setTimeout(patch, 500);
   }
 })();

@@ -42,24 +42,131 @@
     return { name: name, url: url, img: img, stash: stash };
   }
 
+  
   function toJsDelivr(url) {
     try {
       var u = String(url || "");
-      // raw.githubusercontent.com/user/repo/branch/path -> cdn.jsdelivr.net/gh/user/repo@branch/path
       var m = u.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i);
-      if (m) {
-        return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
-      }
-      // github.com/user/repo/blob/branch/path
+      if (m) return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
       m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
-      if (m) {
-        return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
-      }
+      if (m) return "https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4];
       return u;
-    } catch (e) {
-      return url;
+    } catch (e) { return url; }
+  }
+
+  function injectBase(html, pageUrl) {
+    var base = String(pageUrl).replace(/[#?].*$/, "").replace(/\/[^\/]*$/, "/");
+    if (!base || base === pageUrl) {
+      try { base = new URL(".", pageUrl).href; } catch (e) { base = pageUrl; }
+    }
+    var tag = '<base href="' + base.replace(/"/g, "&quot;") + '">';
+    if (/<base\s/i.test(html)) return html;
+    if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, "<head$1>" + tag);
+    if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, "<html$1><head>" + tag + "</head>");
+    return tag + html;
+  }
+
+  function findGameFrame() {
+    var area = document.getElementById("tab-content-area");
+    if (!area) return null;
+    var frames = area.querySelectorAll("iframe.tab-frame, iframe");
+    if (!frames.length) return null;
+    // prefer active
+    for (var i = frames.length - 1; i >= 0; i--) {
+      if (frames[i].classList && frames[i].classList.contains("active")) return frames[i];
+    }
+    return frames[frames.length - 1];
+  }
+
+  function writeHtmlToFrame(iframe, html) {
+    if (!iframe) return false;
+    try {
+      // Prefer srcdoc — always treated as HTML document, never text/plain
+      iframe.removeAttribute("src");
+      iframe.srcdoc = html;
+      return true;
+    } catch (e) {}
+    try {
+      iframe.src = "about:blank";
+      var id = setInterval(function () {
+        try {
+          var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+          if (!doc) return;
+          clearInterval(id);
+          doc.open();
+          doc.write(html);
+          doc.close();
+        } catch (err) {
+          clearInterval(id);
+        }
+      }, 30);
+      setTimeout(function () { clearInterval(id); }, 3000);
+      return true;
+    } catch (e2) {
+      return false;
     }
   }
+
+  function openGame(url, title) {
+    if (!url) return;
+    url = toJsDelivr(String(url).trim());
+    title = title || "Game";
+
+    function embedHtml(html) {
+      html = injectBase(html, url);
+      // Open a blank tab first so BrowserTabs UI exists, then inject HTML as a real document
+      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+        try {
+          BrowserTabs.openTab("about:blank", title);
+        } catch (e) {}
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries++;
+          var frame = findGameFrame();
+          if (frame && writeHtmlToFrame(frame, html)) {
+            clearInterval(timer);
+            return;
+          }
+          if (tries > 40) {
+            clearInterval(timer);
+            // last resort: new window with blob HTML
+            try {
+              var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+              window.open(URL.createObjectURL(blob), "_blank");
+            } catch (e) {
+              window.open(url, "_blank");
+            }
+          }
+        }, 50);
+        return;
+      }
+      try {
+        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        window.open(URL.createObjectURL(blob), "_blank");
+      } catch (e) {
+        window.open(url, "_blank");
+      }
+    }
+
+    fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("status " + r.status);
+        return r.text();
+      })
+      .then(function (text) {
+        if (!text || !String(text).trim()) throw new Error("empty");
+        embedHtml(String(text));
+      })
+      .catch(function () {
+        // Direct navigation fallback (may still fail if X-Frame blocks)
+        if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
+          BrowserTabs.openTab(url, title);
+        } else {
+          window.open(url, "_blank");
+        }
+      });
+  }
+
 
   function proxiedUrl(url) {
     try {
@@ -96,45 +203,7 @@
     }
   }
 
-  function openGame(url, title) {
-    if (!url) return;
-    url = toJsDelivr(url);
 
-    // 1) Prefer UV proxy — rewrites assets and serves as real HTML page
-    var viaProxy = proxiedUrl(url);
-    if (viaProxy) {
-      if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
-        BrowserTabs.openTab(viaProxy, title || "Game");
-        return;
-      }
-      window.open(viaProxy, "_blank");
-      return;
-    }
-
-    // 2) Fetch HTML and embed as blob (fixes text/plain / "shows source code")
-    fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" })
-      .then(function (r) {
-        if (!r.ok) throw new Error("bad status");
-        return r.text();
-      })
-      .then(function (text) {
-        var looksHtml = /^\s*</.test(text) || /<html[\s>]/i.test(text) || /<!doctype/i.test(text);
-        if (looksHtml && openViaSrcdoc(text, url, title)) return;
-        // fallback: open URL directly in tab
-        if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
-          BrowserTabs.openTab(url, title || "Game");
-        } else {
-          window.open(url, "_blank");
-        }
-      })
-      .catch(function () {
-        if (window.BrowserTabs && typeof BrowserTabs.openTab === "function") {
-          BrowserTabs.openTab(url, title || "Game");
-        } else {
-          window.open(url, "_blank");
-        }
-      });
-  }
 
   async function j(url) {
     var r = await fetch(url, { cache: "no-store" });
