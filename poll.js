@@ -1,21 +1,43 @@
-/* Dizzy live poll overlay
- * Edit poll.json for question, 2 answers, and from
- * POLL_API = your Cloudflare Worker URL (no trailing slash)
- */
+/* Dizzy live poll — shows once per poll id until you change poll.json id/question */
 (function () {
   var POLL_API = "https://poll-api.ksimmisk497.workers.dev";
-  var VOTED_KEY = "dizzy_poll_voted_v1";
+  var STORAGE_PREFIX = "dizzy_poll_v2:";
 
   function $(id) { return document.getElementById(id); }
 
-  function votedKey(question) {
-    return VOTED_KEY + ":" + String(question || "").slice(0, 80);
+  function pollId(cfg) {
+    if (cfg && cfg.id) return String(cfg.id);
+    // fallback stable id from question text
+    return "q:" + String((cfg && cfg.question) || "").trim().toLowerCase().slice(0, 100);
   }
-  function hasVoted(question) {
-    try { return localStorage.getItem(votedKey(question)) === "1"; } catch (e) { return false; }
+
+  function storageKey(cfg) {
+    return STORAGE_PREFIX + pollId(cfg);
   }
-  function markVoted(question) {
-    try { localStorage.setItem(votedKey(question), "1"); } catch (e) {}
+
+  function hasVoted(cfg) {
+    try {
+      var k = storageKey(cfg);
+      if (localStorage.getItem(k) === "1") return true;
+      // legacy key support
+      var legacy = "dizzy_poll_voted_v1:" + String((cfg && cfg.question) || "").slice(0, 80);
+      if (localStorage.getItem(legacy) === "1") {
+        localStorage.setItem(k, "1");
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markVoted(cfg) {
+    try {
+      localStorage.setItem(storageKey(cfg), "1");
+      localStorage.setItem(storageKey(cfg) + ":at", String(Date.now()));
+      // also write legacy so old logic stays consistent
+      localStorage.setItem("dizzy_poll_voted_v1:" + String(cfg.question || "").slice(0, 80), "1");
+    } catch (e) {}
   }
 
   function injectStyles() {
@@ -67,6 +89,7 @@
 
   function renderResults(cfg, data, picked) {
     var stats = $("poll-stats");
+    if (!stats) return;
     stats.hidden = false;
     var a = (cfg.answers && cfg.answers[0]) || "Option A";
     var b = (cfg.answers && cfg.answers[1]) || "Option B";
@@ -107,21 +130,22 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: question, choice: choice }),
     });
+    if (!r.ok) throw new Error("vote failed");
     return await r.json();
   }
 
   async function start() {
     var cfg;
     try {
-      var res = await fetch("poll.json", { cache: "no-store" });
+      var res = await fetch("poll.json?t=" + Date.now(), { cache: "no-store" });
       cfg = await res.json();
     } catch (e) {
       return;
     }
     if (!cfg || !cfg.question || !cfg.answers || cfg.answers.length < 2) return;
 
-    // Already voted on this poll → do not show again until question changes
-    if (hasVoted(cfg.question)) return;
+    // CRITICAL: if already voted this poll, never show overlay again
+    if (hasVoted(cfg)) return;
 
     mount();
     $("poll-from").textContent = cfg.from ? ("From " + cfg.from) : "";
@@ -136,31 +160,39 @@
       btn.setAttribute("data-choice", choice);
       btn.textContent = cfg.answers[i];
       btn.onclick = async function () {
-        if (hasVoted(cfg.question)) return;
+        if (hasVoted(cfg)) return;
         var label = cfg.answers[i];
         btn.textContent = "Voting…";
+        // Save locally FIRST so refresh won't re-show even if network fails mid-way
+        markVoted(cfg);
         try {
           var data = await sendVote(cfg.question, choice);
-          markVoted(cfg.question);
           renderResults(cfg, data, choice);
-          $("poll-close").hidden = false;
           $("poll-note").textContent = "Thanks for voting";
         } catch (err) {
-          btn.textContent = label;
-          $("poll-note").textContent = "Could not send vote. Try again.";
+          // still keep voted flag so overlay doesn't spam; show note
+          $("poll-note").textContent = "Saved. Results may take a moment.";
+          try {
+            renderResults(cfg, await fetchResults(cfg.question), choice);
+          } catch (e2) {
+            renderResults(cfg, { a: 0, b: 0, total: 0, percent: { a: 0, b: 0 } }, choice);
+          }
         }
+        $("poll-close").hidden = false;
+        // Re-check storage wrote correctly
+        markVoted(cfg);
       };
       opts.appendChild(btn);
     });
 
     $("poll-close").onclick = function () {
+      markVoted(cfg);
       $("poll-overlay").hidden = true;
     };
 
-    // Live update while still on the results screen
     setInterval(async function () {
       if (!$("poll-overlay") || $("poll-overlay").hidden) return;
-      if (!hasVoted(cfg.question)) return;
+      if (!hasVoted(cfg)) return;
       try {
         renderResults(cfg, await fetchResults(cfg.question), null);
       } catch (e) {}
