@@ -1,9 +1,9 @@
 /* Dizzy live poll overlay
  * Edit poll.json for question, 2 answers, and from
- * Set POLL_API to your Cloudflare Worker URL (no trailing slash)
+ * POLL_API = your Cloudflare Worker URL (no trailing slash)
  */
 (function () {
-  var POLL_API = "https://poll-api.ksimmisk497.workers.dev"; // change after you deploy poll-worker.js
+  var POLL_API = "https://poll-api.ksimmisk497.workers.dev";
   var VOTED_KEY = "dizzy_poll_voted_v1";
 
   function $(id) { return document.getElementById(id); }
@@ -97,9 +97,6 @@
   }
 
   async function fetchResults(question) {
-    if (!POLL_API || POLL_API.indexOf("YOUR-POLL") !== -1) {
-      return { a: 0, b: 0, total: 0, percent: { a: 0, b: 0 } };
-    }
     var r = await fetch(POLL_API + "/api/results?q=" + encodeURIComponent(question), { cache: "no-store" });
     return await r.json();
   }
@@ -123,6 +120,9 @@
     }
     if (!cfg || !cfg.question || !cfg.answers || cfg.answers.length < 2) return;
 
+    // Already voted on this poll → do not show again until question changes
+    if (hasVoted(cfg.question)) return;
+
     mount();
     $("poll-from").textContent = cfg.from ? ("From " + cfg.from) : "";
     $("poll-q").textContent = cfg.question;
@@ -140,21 +140,11 @@
         var label = cfg.answers[i];
         btn.textContent = "Voting…";
         try {
-          if (POLL_API && POLL_API.indexOf("YOUR-POLL") === -1) {
-            var data = await sendVote(cfg.question, choice);
-            markVoted(cfg.question);
-            renderResults(cfg, data, choice);
-          } else {
-            markVoted(cfg.question);
-            renderResults(cfg, {
-              a: choice === "a" ? 1 : 0,
-              b: choice === "b" ? 1 : 0,
-              total: 1,
-              percent: { a: choice === "a" ? 100 : 0, b: choice === "b" ? 100 : 0 },
-            }, choice);
-            $("poll-note").textContent = "Set POLL_API in poll.js to enable real live votes.";
-          }
+          var data = await sendVote(cfg.question, choice);
+          markVoted(cfg.question);
+          renderResults(cfg, data, choice);
           $("poll-close").hidden = false;
+          $("poll-note").textContent = "Thanks for voting";
         } catch (err) {
           btn.textContent = label;
           $("poll-note").textContent = "Could not send vote. Try again.";
@@ -167,17 +157,10 @@
       $("poll-overlay").hidden = true;
     };
 
-    if (hasVoted(cfg.question)) {
-      try {
-        renderResults(cfg, await fetchResults(cfg.question), null);
-      } catch (e) {}
-      $("poll-close").hidden = false;
-      $("poll-note").textContent = "You already voted · live results";
-    }
-
+    // Live update while still on the results screen
     setInterval(async function () {
       if (!$("poll-overlay") || $("poll-overlay").hidden) return;
-      if (!hasVoted(cfg.question) && $("poll-stats").hidden) return;
+      if (!hasVoted(cfg.question)) return;
       try {
         renderResults(cfg, await fetchResults(cfg.question), null);
       } catch (e) {}
