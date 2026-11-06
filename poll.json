@@ -1,6 +1,6 @@
 {
   "id": "poll-1",
-  "question": "(IMPORTANT) answer like a good boy or no more dizzy for you",
+  "question": "Answer",
   "answers": ["Keep working on dizzy", "Keep it how it is"],
-  "from": "Wes & Dizzy Team"
+  "from": "Wes"
 }

@@ -1,14 +1,18 @@
-/* Dizzy live poll — shows once per poll id until you change poll.json id/question */
+/* Dizzy live poll — shows once per poll. New popup when you change id/question/answers in poll.json */
 (function () {
   var POLL_API = "https://poll-api.ksimmisk497.workers.dev";
   var STORAGE_PREFIX = "dizzy_poll_v2:";
 
   function $(id) { return document.getElementById(id); }
 
+  // Unique per poll. Change id OR question/answers in poll.json → new popup for everyone.
   function pollId(cfg) {
-    if (cfg && cfg.id) return String(cfg.id);
-    // fallback stable id from question text
-    return "q:" + String((cfg && cfg.question) || "").trim().toLowerCase().slice(0, 100);
+    var id = cfg && cfg.id != null ? String(cfg.id).trim() : "";
+    var q = String((cfg && cfg.question) || "").trim().toLowerCase();
+    var a0 = String((cfg && cfg.answers && cfg.answers[0]) || "").trim().toLowerCase();
+    var a1 = String((cfg && cfg.answers && cfg.answers[1]) || "").trim().toLowerCase();
+    // Prefer explicit id; also fold in content so changing the question makes a new poll
+    return (id ? id + "|" : "") + q + "||" + a0 + "||" + a1;
   }
 
   function storageKey(cfg) {
