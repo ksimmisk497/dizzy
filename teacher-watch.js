@@ -21,7 +21,7 @@
 
   var panel = document.createElement("div");
   panel.id = "dizzy-teacher-warn";
-  panel.innerHTML = '<div class="box"><h2>WARNING TEACHER IS WATCHING!</h2><p>Possible monitoring detected. Switch tabs or use your panic key.</p><button type="button" id="dizzy-tw-ok">OK</button></div>';
+  panel.innerHTML = '<div class="box"><h2>WARNING TEACHER IS WATCHING!</h2><p>get off the site stop reading this</p><button type="button" id="dizzy-tw-ok">OK</button></div>';
   function mount() {
     if (!document.body) return setTimeout(mount, 30);
     if (!document.getElementById("dizzy-teacher-warn")) document.body.appendChild(panel);
