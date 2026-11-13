@@ -37,15 +37,6 @@
   outline: none;
 }
 #g-search:focus { border-color: color-mix(in srgb, var(--acc) 40%, transparent); }
-.g-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.g-tab {
-  width: 52px; height: 52px; padding: 0; border-radius: 12px;
-  border: 1px solid var(--line); background: var(--raise); cursor: pointer; overflow: hidden;
-  color: var(--muted); font-weight: 700; font-size: 12px; font-family: var(--font);
-}
-.g-tab.tab-text { width: auto; min-width: 52px; padding: 0 12px; }
-.g-tab img { width: 52px; height: 52px; object-fit: cover; display: block; }
-.g-tab.active, .g-tab:hover { border-color: var(--line2); box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 25%, transparent); }
 .g-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -58,7 +49,6 @@
 }
 .g-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #0a0a0c; margin-bottom: 8px; display: block; }
 .g-card .n { font-size: 12px; font-weight: 650; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.g-card .s { font-size: 10px; color: var(--faint); margin-top: 4px; }
 .g-status { text-align: center; color: var(--muted); padding: 28px; font-size: 14px; }
 .g-more {
   display: block; margin: 16px auto; padding: 10px 16px; border-radius: 12px;
@@ -86,13 +76,12 @@
   max-width: none !important;
 }
 #g-search::placeholder { color: #7a5a9a; }
-.g-card, .g-tab {
+.g-card {
   background: #120a1c !important;
   border-color: rgba(155, 92, 255, 0.35) !important;
   color: #f5eaff !important;
   font-family: var(--font) !important;
 }
-.g-card .s { color: #9b5cff !important; font-size: 9px; }
 .row h1, .count { font-family: var(--font) !important; }
 .count { color: #b89ad4 !important; }
 </style>
@@ -122,7 +111,7 @@ html,body{width:100%!important;height:100%!important;overflow:hidden!important}
   max-width: none !important;
 }
 #g-search::placeholder { color: #7a5a9a; }
-.g-card, .g-tab {
+.g-card {
   background: #120a1c !important;
   border-color: rgba(155, 92, 255, 0.35) !important;
   color: #f5eaff !important;
@@ -168,7 +157,6 @@ html,body{width:100%!important;height:100%!important;overflow:hidden!important}
         <span class="count" id="g-count">…</span>
         <input id="g-search" type="search" placeholder="Search" autocomplete="off">
       </div>
-      <div class="g-tabs" id="g-tabs"></div>
       <div class="g-status" id="g-status">Loading…</div>
       <div class="g-grid" id="g-grid"></div>
       <button type="button" class="g-more" id="g-more" style="display:none">Load more</button>
@@ -192,41 +180,10 @@ html,body{width:100%!important;height:100%!important;overflow:hidden!important}
     document.getElementById('g-status').textContent = 'Missing games-sources.js';
     return;
   }
-  var current='ubz', list=[], filtered=[], shown=0, PAGE=80;
-  var tabs=document.getElementById('g-tabs'), grid=document.getElementById('g-grid');
+  var list=[], filtered=[], shown=0, PAGE=80;
+  var grid=document.getElementById('g-grid');
   var status=document.getElementById('g-status'), count=document.getElementById('g-count');
   var more=document.getElementById('g-more'), search=document.getElementById('g-search');
-  var ICONS={
-    ubz:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ubz.png',
-    gn:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/gn.png',
-    elite:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/elite.png',
-    ugs:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ugs.png',
-    seraph:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/seraph.png',
-    ckv:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/chicken.png',
-    noah:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/noah.png',
-    lumin:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/lumin.png',
-    daknux:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/daknux.png',
-    kh0:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/3kho.png',
-    alexr:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/alexr.png',
-    hydra:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/hydra.png',
-    diesmos:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/diesmos.png',
-    gclass:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/classroomimage.png',
-    cc:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/ccported.png',
-    kh3:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/3kho.png',
-    bloxy:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/bloxy.png',
-    yt:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/youtube.png',
-    blox:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/blox.png',
-    nebula:'https://cdn.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3/assets/img/nebula.PNG'
-  };
-  Object.keys(DizzyGames.STASH).forEach(function(key){
-    var b=document.createElement('button'); b.type='button';
-    b.className='g-tab'+(key===current?' active':'')+(ICONS[key]?'':' tab-text');
-    b.title=DizzyGames.STASH[key];
-    if(ICONS[key]){ var img=document.createElement('img'); img.src=ICONS[key]; img.onerror=function(){this.src='favicon.png'}; b.appendChild(img); }
-    else b.textContent=DizzyGames.STASH[key];
-    b.onclick=function(){ document.querySelectorAll('.g-tab').forEach(function(x){x.classList.remove('active')}); b.classList.add('active'); current=key; load(); };
-    tabs.appendChild(b);
-  });
   function applyFilter(){
     var q=(search.value||'').trim().toLowerCase();
     filtered=!q?list.slice():list.filter(function(g){return (g.name||'').toLowerCase().indexOf(q)!==-1});
@@ -237,21 +194,26 @@ html,body{width:100%!important;height:100%!important;overflow:hidden!important}
   function renderMore(){
     filtered.slice(shown,shown+PAGE).forEach(function(g){
       var c=document.createElement('button'); c.type='button'; c.className='g-card';
-      c.innerHTML="<img loading='lazy' alt=''><div class='n'></div><div class='s'></div>";
-      var img=c.querySelector('img'); img.src=g.img||'favicon.png'; img.onerror=function(){this.src='favicon.png'};
-      c.querySelector('.n').textContent=g.name; c.querySelector('.s').textContent=DizzyGames.STASH[g.stash]||'';
-      c.onclick=function(e){ e.preventDefault(); DizzyGames.openGame(g.url,g.name); };
+      c.innerHTML="<img loading='lazy' alt=''><div class='n'></div>";
+      var img=c.querySelector('img'); img.src=g.img||'favicon.png'; img.alt=g.name||'Game'; img.onerror=function(){this.src='favicon.png'};
+      c.querySelector('.n').textContent=g.name;
+      c.onclick=function(e){e.preventDefault();DizzyGames.openGame(g.url,g.name)};
       grid.appendChild(c);
     });
     shown=Math.min(filtered.length,shown+PAGE);
     more.style.display=shown<filtered.length?'block':'none';
   }
   more.onclick=renderMore;
-  search.oninput=function(){ clearTimeout(search._t); search._t=setTimeout(applyFilter,200); };
+  search.oninput=function(){clearTimeout(search._t);search._t=setTimeout(applyFilter,200)};
   async function load(){
     status.style.display='block'; status.textContent='Loading…'; grid.innerHTML='';
-    try { list=await DizzyGames.loadStash(current); applyFilter(); if(!list.length){ status.style.display='block'; status.textContent='Source empty or blocked'; } }
-    catch(e){ status.textContent='Load failed'; }
+    try {
+      list=await DizzyGames.loadStash('all');
+      applyFilter();
+      if(!list.length){status.style.display='block';status.textContent='No games found'}
+    } catch(e) {
+      status.textContent='Could not load games';
+    }
   }
   load();
 })();

@@ -1,0 +1,119 @@
+[
+  {
+    "title": "Request a Feature",
+    "image": "apps/assets/request.jpg",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/request.html",
+    "category": [
+      "Uncategorized"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "EmulatorJS",
+    "image": "apps/assets/emulatorjs.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/EmulatorJS.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "GZDoom",
+    "image": "apps/assets/gzdoom.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/gzdoom.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Hopalong Cosmos",
+    "image": "apps/assets/hopalong_cosmos.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/hopalong_cosmos.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Html Editor",
+    "image": "apps/assets/html_editor.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/html_editor.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Linux",
+    "image": "apps/assets/linux.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/linux.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Nautilus OS",
+    "image": "apps/assets/nautilus_OS.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/nautilus_OS.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Ruffle",
+    "image": "apps/assets/ruffle.avif",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/ruffle.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Scratch Loader GX",
+    "image": "apps/assets/scratchloadergx.svg",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/scratchloadergx.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "SusBears",
+    "image": "apps/assets/susbears.gif",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/susbears/index.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Time Vortex",
+    "image": "apps/assets/time_vortex.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/time_vortex.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Wayground",
+    "image": "apps/assets/wayground.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/wayground.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  },
+  {
+    "title": "Wikipedia",
+    "image": "apps/assets/Wikipedia.png",
+    "url": "https://cdn.jsdelivr.net/gh/arcade-v/apps/wikipedia_2.html",
+    "category": [
+      "App"
+    ],
+    "mode": "A"
+  }
+]
